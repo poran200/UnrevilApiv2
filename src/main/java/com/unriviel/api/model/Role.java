@@ -31,9 +31,9 @@ public class Role {
     @NaturalId
     private RoleName role;
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<User> userList = new HashSet<>();
+//    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private Set<User> userList = new HashSet<>();
 
     public Role(RoleName role) {
         this.role = role;
@@ -61,13 +61,5 @@ public class Role {
 
     public void setRole(RoleName role) {
         this.role = role;
-    }
-
-    public Set<User> getUserList() {
-        return userList;
-    }
-
-    public void setUserList(Set<User> userList) {
-        this.userList = userList;
     }
 }

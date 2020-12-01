@@ -71,8 +71,8 @@ public class AuthService {
         }
         logger.info("Trying to register new user [" + newRegistrationRequestEmail + "]");
 
-        User newUser = userService.createUser(userRegDto,roleName);
-        User registeredNewUser = userService.save(newUser);
+        User newUser = userService.createUser(userRegDto);
+        User registeredNewUser = userService.saveWithRole(newUser,roleName);
         return Optional.ofNullable(registeredNewUser);
     }
 
@@ -98,7 +98,8 @@ public class AuthService {
      * Authenticate user and log them in given a loginRequest
      */
     public Optional<Authentication> authenticateUser(LoginRequest loginRequest) {
-        return Optional.ofNullable(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+        return Optional.ofNullable(authenticationManager.
+                authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
                 loginRequest.getPassword())));
     }
 

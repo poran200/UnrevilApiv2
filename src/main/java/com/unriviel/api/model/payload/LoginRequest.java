@@ -14,10 +14,10 @@ public class LoginRequest {
     @NullOrNotBlank(message = "Login Username can be null but not blank")
     @Schema(title = "Registered username", allowableValues = "NonEmpty String")
     private String username;
-
-    @NullOrNotBlank(message = "Login Email can be null but not blank")
-    @Schema(description = "User registered email", required = true, allowableValues = "NonEmpty String")
-    private String email;
+//
+//    @NullOrNotBlank(message = "Login Email can be null but not blank")
+//    @Schema(description = "User registered email", required = true, allowableValues = "NonEmpty String")
+//    private String email;
 
     @NotNull(message = "Login password cannot be blank")
     @Schema(description = "Valid user password", required = true, allowableValues = "NonEmpty String")
@@ -29,9 +29,8 @@ public class LoginRequest {
             "deviceInfo object")
     private DeviceInfo deviceInfo;
 
-    public LoginRequest(String username, String email, String password, DeviceInfo deviceInfo) {
+    public LoginRequest(String username, String password, DeviceInfo deviceInfo) {
         this.username = username;
-        this.email = email;
         this.password = password;
         this.deviceInfo = deviceInfo;
     }
@@ -45,14 +44,6 @@ public class LoginRequest {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPassword() {

@@ -83,12 +83,12 @@ public class AuthController {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         logger.info("Logged in User returned [API]: " + customUserDetails.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         return authService.createAndPersistRefreshTokenForDevice(authentication, loginRequest)
                 .map(RefreshToken::getToken)
                 .map(refreshToken -> {
                     String jwtToken = authService.generateToken(customUserDetails);
-                    return ResponseEntity.ok(new JwtAuthenticationResponse(jwtToken, refreshToken, tokenProvider.getExpiryDuration()));
+                    return ResponseEntity.ok().body(
+                            new JwtAuthenticationResponse(jwtToken, refreshToken, tokenProvider.getExpiryDuration()));
                 })
                 .orElseThrow(() -> new UserLoginException("Couldn't create refresh token for: [" + loginRequest + "]"));
     }
@@ -97,13 +97,13 @@ public class AuthController {
      * Entry point for the user registration process. On successful registration,
      * publish an event to generate email verification token
      */
-    @PostMapping("admin/register")
-//    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(description = "Registers the user and publishes an event to generate the email verification")
-//    @DataValidation
-    public ResponseEntity registerAdmin(@Parameter(description = "The RegistrationRequest payload") @Valid @RequestBody UserRegDto userRegDto) {
-         return    registrationUser(userRegDto,RoleName.ROLE_ADMIN);
-    }
+//    @PostMapping("admin/register")
+////    @PreAuthorize("hasRole('ADMIN')")
+//    @Operation(description = "Registers the user and publishes an event to generate the email verification")
+////    @DataValidation
+//    public ResponseEntity registerAdmin(@Parameter(description = "The RegistrationRequest payload") @Valid @RequestBody UserRegDto userRegDto) {
+//         return    registrationUser(userRegDto,RoleName.ROLE_ADMIN);
+//    }
     @PostMapping("reviewer/register")
     @PreAuthorize("hasRole('ADMIN')")
     @DataValidation

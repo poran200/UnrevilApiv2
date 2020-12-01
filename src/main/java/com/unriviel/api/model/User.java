@@ -50,11 +50,11 @@ public class User extends DateAudit {
     @Column(name = "IS_ACTIVE", nullable = false)
     private Boolean active;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JoinTable(name = "USER_AUTHORITY", joinColumns = {
             @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID")}, inverseJoinColumns = {
             @JoinColumn(name = "ROLE_ID", referencedColumnName = "ROLE_ID")})
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles ;
 
     @Column(name = "IS_EMAIL_VERIFIED", nullable = false)
     private Boolean isEmailVerified;
@@ -75,8 +75,12 @@ public class User extends DateAudit {
     }
 
     public void addRole(Role role) {
+        if (this.roles == null){
+           this.roles = new HashSet<>();
+           roles.add(role);
+        }
         roles.add(role);
-        role.getUserList().add(this);
+
     }
 
     public String getFullName() {
@@ -93,7 +97,7 @@ public class User extends DateAudit {
 
     public void removeRole(Role role) {
         roles.remove(role);
-        role.getUserList().remove(this);
+
     }
 
     public void markVerificationConfirmed() {
@@ -147,6 +151,7 @@ public class User extends DateAudit {
     }
 
     public void setRoles(Set<Role> authorities) {
+        if (roles== null) this.roles = new HashSet<>();
         roles = authorities;
     }
 

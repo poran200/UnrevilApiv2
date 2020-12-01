@@ -5,12 +5,15 @@ import com.unriviel.api.dto.UserRegDto;
 import com.unriviel.api.exception.UserLogoutException;
 import com.unriviel.api.model.*;
 import com.unriviel.api.model.payload.LogOutRequest;
+import com.unriviel.api.repository.RoleRepository;
 import com.unriviel.api.repository.UserRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -21,15 +24,16 @@ public class UserService {
     private static final Logger logger = Logger.getLogger(UserService.class);
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final RoleService roleService;
+    private final RoleRepository  roleRepository;
     private final UserDeviceService userDeviceService;
     private final RefreshTokenService refreshTokenService;
 
     @Autowired
-    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleService roleService, UserDeviceService userDeviceService, RefreshTokenService refreshTokenService) {
+    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, UserDeviceService userDeviceService, RefreshTokenService refreshTokenService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.roleService = roleService;
+        this.roleRepository = roleRepository;
+
         this.userDeviceService = userDeviceService;
         this.refreshTokenService = refreshTokenService;
     }
@@ -58,8 +62,29 @@ public class UserService {
     /**
      * Save the user to the database
      */
-    public User save(User user) {
+    @Transactional
+    public User saveWithRole(User user,RoleName roleName) {
+        Optional<Role> role = roleRepository.findByRole(roleName);
+        Optional<Role> role1 = roleRepository.findByRole(RoleName.ROLE_USER);
+        Set<Role> roles = new HashSet<>();
+        if (role.isPresent() ){
+             roles.add(role.get());
+
+            if (role1.isPresent()){
+                roles.add(role1.get());
+            }else {
+                Role save = roleRepository.save(new Role(RoleName.ROLE_USER));
+                roles.add(save);
+            }
+        }else {
+            Role rolesave = roleRepository.save(new Role(roleName));
+            roles.add(rolesave);
+        }
+         user.setRoles(roles);
         return userRepository.save(user);
+    }
+    public User save(User user){
+       return userRepository.save(user);
     }
 
     /**
@@ -80,12 +105,12 @@ public class UserService {
     /**
      * Creates a new user from the registration request
      */
-    public User createUser(UserRegDto dto, RoleName roleName) {
+    public User createUser(UserRegDto dto) {
         User newUser = new User();
         newUser.setEmail(dto.getEmail());
         newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
-        newUser.setUsername(dto.getEmail());
-        newUser.setRoles(getRolesForNewUser(roleName));
+        newUser.setUsername(dto.getUserName());
+//        newUser.addRole(new Role(roleName));
         newUser.setActive(true);
         newUser.setEmailVerified(false);
         return newUser;
@@ -96,17 +121,17 @@ public class UserService {
      *
      * @return list of roles for the new user
      */
-    private Set<Role> getRolesForNewUser(RoleName roleName) {
-        Set<Role> newUserRoles = new HashSet<>();
-        Optional<Role> role = roleService.finByRoleName(roleName);
-        Optional<Role> role1 = roleService.finByRoleName(RoleName.ROLE_USER);
-         if (role.isPresent() && role1.isPresent()){
-              newUserRoles.add(role.get());
-              newUserRoles.add(role1.get());
-         }
-        logger.info("Setting user roles: " + newUserRoles);
-        return newUserRoles;
-    }
+//    private Role getRolesForNewUser(RoleName roleName) {
+//
+//        Optional<Role> role = roleService.finByRoleName(roleName);
+//         if (role.isPresent()){
+//             logger.info("Setting user roles: " + role.get().getRole());
+//             return role.get();
+//         }else
+//
+//            return roleService.create(new Role(roleName));
+//
+//    }
 
     /**
      * Log the given user out and delete the refresh token associated with it. If no device

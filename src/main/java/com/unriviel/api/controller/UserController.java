@@ -13,7 +13,9 @@
  */
 package com.unriviel.api.controller;
 
+import com.sun.security.auth.UserPrincipal;
 import com.unriviel.api.annotation.CurrentUser;
+import com.unriviel.api.dto.UserRespondDto;
 import com.unriviel.api.event.OnUserAccountChangeEvent;
 import com.unriviel.api.event.OnUserLogoutSuccessEvent;
 import com.unriviel.api.exception.UpdatePasswordException;
@@ -23,7 +25,6 @@ import com.unriviel.api.model.payload.LogOutRequest;
 import com.unriviel.api.model.payload.UpdatePasswordRequest;
 import com.unriviel.api.service.impl.AuthService;
 import com.unriviel.api.service.impl.UserService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,17 +33,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/user")
 @Tag(name = "User Rest API", description = "Defines endpoints for the logged in user. It's secured by default")
 
 public class UserController {
@@ -68,10 +68,25 @@ public class UserController {
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
     @Operation(description ="Returns the current user profile")
-    public ResponseEntity getUserProfile(@CurrentUser CustomUserDetails currentUser) {
-        logger.info(currentUser.getEmail() + " has role: " + currentUser.getRoles());
-        return ResponseEntity.ok("Hello. This is about me");
+    public ResponseEntity getUserProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
+        logger.info(principal.getUsername() + " has role: " + principal.getRoles());
+        UserRespondDto dto = new UserRespondDto();
+        dto.setUserName(principal.getUsername());
+        dto.setEmail(principal.getEmail());
+        dto.setRoles( principal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+         dto.setAccountNotLocked(principal.isAccountNonLocked());
+        return ResponseEntity.ok().body(dto);
+//        return ResponseEntity.ok("Hello. This is about me");
     }
+
+//    public ResponseEntity getUser(){
+//
+//    }
+
 
     /**
      * Returns all admins in the system. Requires Admin access
