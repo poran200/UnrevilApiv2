@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class LoginDto {
     @NullOrNotBlank(message = "Login Username or Email can be null but not blank")
-   private String userNameOrEmail;
+   private String  username;
     @NotNull(message = "Login password cannot be blank")
    private String password;
 }

@@ -78,7 +78,7 @@ public class AuthController {
     @Operation(description = "Logs the user in to the system and return the auth tokens")
     public ResponseEntity authenticateUser(@Parameter(description = "The LoginRequest payload") @Valid @RequestBody LoginDto loginDto) {
             LoginRequest loginRequest = new LoginRequest();
-            loginRequest.setUserName(loginDto.getUserNameOrEmail());
+            loginRequest.setUserName(loginDto.getUsername());
             loginRequest.setPassword(loginDto.getPassword());
             DeviceInfo deviceInfo = new DeviceInfo();
             deviceInfo.setDeviceId("258");
