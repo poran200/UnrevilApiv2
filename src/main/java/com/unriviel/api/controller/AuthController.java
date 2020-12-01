@@ -1,6 +1,7 @@
 package com.unriviel.api.controller;
 
 import com.unriviel.api.annotation.DataValidation;
+import com.unriviel.api.dto.LoginDto;
 import com.unriviel.api.dto.UserRegDto;
 import com.unriviel.api.event.OnGenerateResetLinkEvent;
 import com.unriviel.api.event.OnRegenerateEmailVerificationEvent;
@@ -8,6 +9,7 @@ import com.unriviel.api.event.OnUserAccountChangeEvent;
 import com.unriviel.api.event.OnUserRegistrationCompleteEvent;
 import com.unriviel.api.exception.*;
 import com.unriviel.api.model.CustomUserDetails;
+import com.unriviel.api.model.DeviceType;
 import com.unriviel.api.model.RoleName;
 import com.unriviel.api.model.payload.*;
 import com.unriviel.api.model.token.EmailVerificationToken;
@@ -21,7 +23,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -75,8 +76,14 @@ public class AuthController {
      */
     @PostMapping("/login")
     @Operation(description = "Logs the user in to the system and return the auth tokens")
-    public ResponseEntity authenticateUser(@Parameter(description = "The LoginRequest payload") @Valid @RequestBody LoginRequest loginRequest) {
-
+    public ResponseEntity authenticateUser(@Parameter(description = "The LoginRequest payload") @Valid @RequestBody LoginDto loginDto) {
+            LoginRequest loginRequest = new LoginRequest();
+            loginRequest.setUserName(loginDto.getUserNameOrEmail());
+            loginRequest.setPassword(loginDto.getPassword());
+            DeviceInfo deviceInfo = new DeviceInfo();
+            deviceInfo.setDeviceId("258");
+            deviceInfo.setDeviceType(DeviceType.DEVICE_TYPE_WEB);
+             loginRequest.setDeviceInfo(deviceInfo);
         Authentication authentication = authService.authenticateUser(loginRequest)
                 .orElseThrow(() -> new UserLoginException("Couldn't login user [" + loginRequest + "]"));
 
@@ -105,14 +112,12 @@ public class AuthController {
 //         return    registrationUser(userRegDto,RoleName.ROLE_ADMIN);
 //    }
     @PostMapping("reviewer/register")
-    @PreAuthorize("hasRole('ADMIN')")
     @DataValidation
     @Operation(description = "Registers the reviewer and publishes an event to generate the email verification")
     public ResponseEntity registerReeviewer(@Parameter(description = "The RegistrationRequest payload") @Valid @RequestBody UserRegDto userRegDto) {
         return    registrationUser(userRegDto,RoleName.ROLE_REVIEWER);
     }
     @PostMapping("influencer/register")
-    @PreAuthorize("hasRole('ADMIN')")
     @DataValidation
     @Operation(description = "Registers the user and publishes an event to generate the email verification")
     public ResponseEntity registerUser(@Parameter(description = "The RegistrationRequest payload") @Valid @RequestBody UserRegDto userRegDto) {

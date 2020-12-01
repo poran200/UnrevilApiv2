@@ -1,22 +1,13 @@
 package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.UserRegDto;
-import com.unriviel.api.exception.PasswordResetLinkException;
-import com.unriviel.api.exception.ResourceAlreadyInUseException;
-import com.unriviel.api.exception.ResourceNotFoundException;
-import com.unriviel.api.exception.TokenRefreshException;
-import com.unriviel.api.exception.UpdatePasswordException;
+import com.unriviel.api.exception.*;
 import com.unriviel.api.model.*;
-import com.unriviel.api.model.payload.LoginRequest;
-import com.unriviel.api.model.payload.PasswordResetLinkRequest;
-import com.unriviel.api.model.payload.PasswordResetRequest;
-import com.unriviel.api.model.payload.TokenRefreshRequest;
-import com.unriviel.api.model.payload.UpdatePasswordRequest;
+import com.unriviel.api.model.payload.*;
 import com.unriviel.api.model.token.EmailVerificationToken;
 import com.unriviel.api.model.token.RefreshToken;
 import com.unriviel.api.security.JwtTokenProvider;
 import com.unriviel.api.service.ProfileService;
-import com.unriviel.api.util.UrlConstrains;
 import org.apache.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +90,7 @@ public class AuthService {
      */
     public Optional<Authentication> authenticateUser(LoginRequest loginRequest) {
         return Optional.ofNullable(authenticationManager.
-                authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserName(),
                 loginRequest.getPassword())));
     }
 

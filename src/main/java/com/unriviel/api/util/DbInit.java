@@ -1,8 +1,6 @@
 package com.unriviel.api.util;
 
 
-import com.unriviel.api.dto.UserRegDto;
-import com.unriviel.api.model.RelevantQuestion;
 import com.unriviel.api.model.Role;
 import com.unriviel.api.model.RoleName;
 import com.unriviel.api.model.User;
@@ -35,6 +33,8 @@ class DbInit {
 
     @PostConstruct
     private void postConstruct() {
+
+
         userRepository.deleteAll();
         roleRepository.deleteAll();
         roleService.create(new Role(RoleName.ROLE_ADMIN));

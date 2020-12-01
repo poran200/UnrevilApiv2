@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.unrivel.api</groupId>
-    <artifactId>unrivelapi</artifactId>
+    <artifactId>Unravel</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Unriviel api</name>
-    <description>unirivile api</description>
+    <name>Unravel API</name>
+    <description>Unravel Content Api</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

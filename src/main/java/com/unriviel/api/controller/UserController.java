@@ -13,14 +13,15 @@
  */
 package com.unriviel.api.controller;
 
-import com.sun.security.auth.UserPrincipal;
 import com.unriviel.api.annotation.CurrentUser;
 import com.unriviel.api.dto.UserRespondDto;
 import com.unriviel.api.event.OnUserAccountChangeEvent;
 import com.unriviel.api.event.OnUserLogoutSuccessEvent;
 import com.unriviel.api.exception.UpdatePasswordException;
 import com.unriviel.api.model.CustomUserDetails;
+import com.unriviel.api.model.DeviceType;
 import com.unriviel.api.model.payload.ApiResponse;
+import com.unriviel.api.model.payload.DeviceInfo;
 import com.unriviel.api.model.payload.LogOutRequest;
 import com.unriviel.api.model.payload.UpdatePasswordRequest;
 import com.unriviel.api.service.impl.AuthService;
@@ -124,8 +125,14 @@ public class UserController {
      */
     @PostMapping("/logout")
     @Operation(description = "Logs the specified user device and clears the refresh tokens associated with it")
-    public ResponseEntity logoutUser(@CurrentUser CustomUserDetails customUserDetails,
-                                     @Parameter(description = "The LogOutRequest payload") @Valid @RequestBody LogOutRequest logOutRequest) {
+    public ResponseEntity logoutUser(@CurrentUser CustomUserDetails customUserDetails) {
+
+            DeviceInfo deviceInfo = new DeviceInfo();
+            deviceInfo.setDeviceId("258");
+            deviceInfo.setDeviceType(DeviceType.DEVICE_TYPE_WEB);
+            LogOutRequest logOutRequest = new LogOutRequest();
+            logOutRequest.setDeviceInfo(deviceInfo);
+
         userService.logoutUser(customUserDetails, logOutRequest);
         Object credentials = SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
