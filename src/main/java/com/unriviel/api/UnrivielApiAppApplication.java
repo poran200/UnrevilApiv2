@@ -24,8 +24,7 @@ public class UnrivielApiAppApplication {
                 registry.addMapping("/**")
                         .allowedOriginPatterns("*")
                         .allowedMethods("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowedHeaders("*");
             }
         };
 
