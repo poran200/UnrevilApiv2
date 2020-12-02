@@ -23,7 +23,8 @@ public class UnrivielApiAppApplication {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("*")
-                        .allowedMethods("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS");
+                        .allowedMethods("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS")
+                        .allowedHeaders("*");
             }
         };
 
