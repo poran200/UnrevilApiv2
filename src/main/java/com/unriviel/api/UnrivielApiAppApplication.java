@@ -14,6 +14,7 @@ public class UnrivielApiAppApplication {
         SpringApplication.run(UnrivielApiAppApplication.class, args);
     }
 
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -21,10 +22,10 @@ public class UnrivielApiAppApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedMethods("*")
-                        .allowedMethods("*");
+                        .allowedOrigins("*")
+                        .allowedMethods("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS");
             }
         };
-    }
 
+    }
 }

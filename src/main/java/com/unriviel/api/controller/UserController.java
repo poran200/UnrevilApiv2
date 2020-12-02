@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.stream.Collectors;
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/user")
 @Tag(name = "User Rest API", description = "Defines endpoints for the logged in user. It's secured by default")

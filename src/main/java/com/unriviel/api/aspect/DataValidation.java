@@ -5,10 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -32,6 +29,7 @@ public class DataValidation {
             }
         }
         if (bindingResult != null && bindingResult.hasFieldErrors()) {
+            log.info("Validation error "+bindingResult);
             Response response = getFailureResponse(bindingResult, "Validation error");
             return ResponseEntity.status((int) response.getStatusCode()).body(response);
         }

@@ -1,6 +1,5 @@
 package com.unriviel.api.controller;
 
-import com.unriviel.api.annotation.DataValidation;
 import com.unriviel.api.dto.LoginDto;
 import com.unriviel.api.dto.UserRegDto;
 import com.unriviel.api.event.OnGenerateResetLinkEvent;
@@ -32,6 +31,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.validation.Valid;
 import java.util.Optional;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authorization Rest API", description = "Defines endpoints that can be hit only when the user is not logged in. It's not secured by default.")
@@ -112,13 +112,11 @@ public class AuthController {
 //         return    registrationUser(userRegDto,RoleName.ROLE_ADMIN);
 //    }
     @PostMapping("reviewer/register")
-    @DataValidation
     @Operation(description = "Registers the reviewer and publishes an event to generate the email verification")
     public ResponseEntity registerReeviewer(@Parameter(description = "The RegistrationRequest payload") @Valid @RequestBody UserRegDto userRegDto) {
         return    registrationUser(userRegDto,RoleName.ROLE_REVIEWER);
     }
     @PostMapping("influencer/register")
-    @DataValidation
     @Operation(description = "Registers the user and publishes an event to generate the email verification")
     public ResponseEntity registerUser(@Parameter(description = "The RegistrationRequest payload") @Valid @RequestBody UserRegDto userRegDto) {
         return    registrationUser(userRegDto,RoleName.ROLE_INFLUENCER);
