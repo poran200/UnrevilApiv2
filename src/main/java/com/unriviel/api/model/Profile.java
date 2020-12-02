@@ -1,5 +1,6 @@
 package com.unriviel.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,20 +23,18 @@ public class Profile   implements Serializable {
     private long id;
     private String profileImageUrl;
     @ElementCollection
-    private List<String> socialMediaLinks;
-    @OneToMany(mappedBy = "profile",fetch = FetchType.LAZY)
+    private List<String> socialMediaLinks = new ArrayList<>();
+    @OneToMany(mappedBy = "profile",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"profile"})
     private List<RelevantQsAns> relevantQsAnsList;
     private  int totalUploadContent;
     private  int totalApproved;
     @OneToOne
+    @JsonIgnore
     private User user;
 
     public void addSocialMediaLinks(List<String> urls){
-        if (socialMediaLinks == null){
-            socialMediaLinks = new ArrayList<>();
-        }
-        socialMediaLinks.addAll(urls);
+       this.socialMediaLinks.addAll(urls);
     }
     public void addQuestionAns(RelevantQsAns ans){
          if (relevantQsAnsList == null){

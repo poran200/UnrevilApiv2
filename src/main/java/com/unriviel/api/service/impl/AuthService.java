@@ -7,9 +7,7 @@ import com.unriviel.api.model.payload.*;
 import com.unriviel.api.model.token.EmailVerificationToken;
 import com.unriviel.api.model.token.RefreshToken;
 import com.unriviel.api.security.JwtTokenProvider;
-import com.unriviel.api.service.ProfileService;
 import org.apache.log4j.Logger;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,11 +29,11 @@ public class AuthService {
     private final EmailVerificationTokenService emailVerificationTokenService;
     private final UserDeviceService userDeviceService;
     private final PasswordResetTokenService passwordResetTokenService;
-    private final ProfileService profileService;
-    private final ModelMapper modelMapper;
+
+
 
     @Autowired
-    public AuthService(UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, EmailVerificationTokenService emailVerificationTokenService, UserDeviceService userDeviceService, PasswordResetTokenService passwordResetTokenService, ProfileService profileService, ModelMapper modelMapper) {
+    public AuthService(UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, EmailVerificationTokenService emailVerificationTokenService, UserDeviceService userDeviceService, PasswordResetTokenService passwordResetTokenService) {
         this.userService = userService;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
@@ -44,9 +42,7 @@ public class AuthService {
         this.emailVerificationTokenService = emailVerificationTokenService;
         this.userDeviceService = userDeviceService;
         this.passwordResetTokenService = passwordResetTokenService;
-        this.profileService = profileService;
 
-        this.modelMapper = modelMapper;
     }
 
     /**

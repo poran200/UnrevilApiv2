@@ -27,14 +27,16 @@ public final class  UrlConstrains {
 
     }
 
-    public class ProfileManagement {
+    public static final class ProfileManagement {
         public static final String ROOT = API+VERSION+"/profile";
-        public static final String FIND_BY_USER_NAME= "/{userName}";
+        public static final String FIND_BY_USER_NAME= "/{userEmail}";
+        public static  final String CREATE_PROFILE = "/{userEmail}";
         public static final String FIND_REVIEWER = "/" ;
+        public static final String UPDATE = "/update/{userEmail}";
     }
 
     public class ReleventQs {
-        public static final String ROOT = API+VERSION+"/reventqs";
-        public static final String All = API+VERSION+"/";
+        public static final String ROOT = API+VERSION+"/questions";
+        public static final String All ="/";
     }
 }

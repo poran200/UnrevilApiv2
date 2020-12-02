@@ -1,6 +1,6 @@
 package com.unriviel.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +22,7 @@ public class RelevantQsAns  implements Serializable {
     private RelevantQuestion question;
     private String answer;
     @ManyToOne
-    @JsonIgnoreProperties({"relevantQsAns"})
+    @JsonIgnore
     private Profile profile;
 
     public RelevantQsAns(RelevantQuestion question, String answer, Profile profile) {

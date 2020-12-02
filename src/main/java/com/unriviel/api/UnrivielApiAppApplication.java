@@ -17,9 +17,12 @@ public class UnrivielApiAppApplication {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
+
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("http://localhost:9004");
+                registry.addMapping("/**")
+                        .allowedMethods("*")
+                        .allowedMethods("*");
             }
         };
     }
