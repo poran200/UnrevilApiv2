@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Optional;
 
 @Component
 class DbInit {
@@ -36,20 +37,38 @@ class DbInit {
     private void postConstruct() {
 
 
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-        roleService.create(new Role(RoleName.ROLE_ADMIN));
-        roleService.create(new Role(RoleName.ROLE_USER));
-        User user= new User();
-        user.setEmail("admin@gmail.com");
-        user.setUsername("admin");
-        user.setFullName("admin user");
-        user.setPassword(passwordEncoder.encode("admin"));
-        user.setActive(true);
-         user.setEmailVerified(true);
-         userService.saveWithRole(user,RoleName.ROLE_ADMIN);
-        questionsRepository.save(new RelevantQuestion("Which destination do you have content for?"));
-        questionsRepository.save(new RelevantQuestion("Which destination do you have radar?"));
-        questionsRepository.save(new RelevantQuestion("Describe yur style"));
+//        userRepository.deleteAll();
+//        roleRepository.deleteAll();
+        if (!roleRepository.findByRole(RoleName.ROLE_USER).isPresent()){
+            roleService.create(new Role(RoleName.ROLE_USER));
+        }
+        if(!roleRepository.findByRole(RoleName.ROLE_ADMIN).isPresent()) {
+            roleService.create(new Role(RoleName.ROLE_ADMIN));
+        }
+        Optional<User> byEmail = userRepository.findByEmail("admin@gmail.com");
+        if (!byEmail.isPresent()){
+            User user= new User();
+            user.setEmail("admin@gmail.com");
+            user.setUsername("admin");
+            user.setFullName("admin user");
+            user.setPassword(passwordEncoder.encode("admin"));
+            user.setActive(true);
+            user.setEmailVerified(true);
+            userService.saveWithRole(user,RoleName.ROLE_ADMIN);
+        }
+//        questionsRepository.deleteAll();
+        String qs1 = "Which destination do you have content for?";
+        String qs2 = "Which destination do you have radar?";
+        String qs3 = "Describe yur style";
+        if (questionsRepository.findByQuestion(qs1).isEmpty()){
+            questionsRepository.save(new RelevantQuestion(qs1));
+        }
+        if (questionsRepository.findByQuestion(qs2).isEmpty()){
+            questionsRepository.save(new RelevantQuestion(qs2));
+        }
+        if (questionsRepository.findByQuestion(qs3).isEmpty()){
+            questionsRepository.save(new RelevantQuestion(qs3));
+        }
+
     }
 }
