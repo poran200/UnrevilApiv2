@@ -14,7 +14,6 @@
 package com.unriviel.api.controller;
 
 import com.unriviel.api.annotation.CurrentUser;
-import com.unriviel.api.dto.UserRespondDto;
 import com.unriviel.api.event.OnUserAccountChangeEvent;
 import com.unriviel.api.event.OnUserLogoutSuccessEvent;
 import com.unriviel.api.exception.UpdatePasswordException;
@@ -35,12 +34,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.stream.Collectors;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/user")
@@ -74,14 +71,9 @@ public class UserController {
 
         CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
         logger.info(principal.getUsername() + " has role: " + principal.getRoles());
-        UserRespondDto dto = new UserRespondDto();
-        dto.setUserName(principal.getUsername());
-        dto.setEmail(principal.getEmail());
-        dto.setRoles( principal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
-         dto.setAccountNotLocked(principal.isAccountNonLocked());
-        return ResponseEntity.ok().body(dto);
-//        return ResponseEntity.ok("Hello. This is about me");
+
+//        return ResponseEntity.ok().body(principal.getFullName());
+        return ResponseEntity.ok("Hello. This is about me "+principal.getFullName());
     }
 
 //    public ResponseEntity getUser(){

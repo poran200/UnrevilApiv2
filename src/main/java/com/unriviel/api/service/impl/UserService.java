@@ -2,6 +2,7 @@ package com.unriviel.api.service.impl;
 
 import com.unriviel.api.annotation.CurrentUser;
 import com.unriviel.api.dto.UserRegDto;
+import com.unriviel.api.dto.UserResponse;
 import com.unriviel.api.exception.UserLogoutException;
 import com.unriviel.api.model.*;
 import com.unriviel.api.model.payload.LogOutRequest;
@@ -9,14 +10,15 @@ import com.unriviel.api.repository.RoleRepository;
 import com.unriviel.api.repository.UserRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -48,8 +50,21 @@ public class UserService {
     /**
      * Finds a user in the database by email
      */
-    public Optional<User> findByEmail(String email) {
+    public Optional<User> findByEmail(String email)
+    {
         return userRepository.findByEmail(email);
+    }
+
+    public UserResponse getUserInfo(CustomUserDetails customUserDetails){
+        UserResponse dto = new UserResponse();
+        dto.setUserName(customUserDetails.getUsername());
+        dto.setEmail(customUserDetails.getEmail());
+        dto.setFullName(customUserDetails.getFullName());
+        dto.setRoles( customUserDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        dto.setAccountNoneLocked(customUserDetails.isAccountNonLocked());
+        dto.setEnable(customUserDetails.isEnabled());
+        return  dto;
     }
 
     /**
@@ -110,6 +125,7 @@ public class UserService {
         newUser.setEmail(dto.getEmail());
         newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         newUser.setUsername(dto.getUserName());
+        newUser.setFullName(dto.getFullName());
 //        newUser.addRole(new Role(roleName));
         newUser.setActive(true);
         newUser.setEmailVerified(false);

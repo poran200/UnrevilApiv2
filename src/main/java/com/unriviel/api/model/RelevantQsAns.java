@@ -18,10 +18,10 @@ public class RelevantQsAns  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private RelevantQuestion question;
     private String answer;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnore
     private Profile profile;
 

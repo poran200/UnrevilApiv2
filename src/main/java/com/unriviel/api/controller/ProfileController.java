@@ -36,7 +36,7 @@ public class ProfileController   {
         }else {
             response = ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"username is require");
         }
-         return ResponseEntity.status(HttpStatus.valueOf(response.getStatus())).body(response);
+         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
 
 

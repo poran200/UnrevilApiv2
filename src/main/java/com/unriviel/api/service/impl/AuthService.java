@@ -86,7 +86,7 @@ public class AuthService {
      */
     public Optional<Authentication> authenticateUser(LoginRequest loginRequest) {
         return Optional.ofNullable(authenticationManager.
-                authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserName(),
+                authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserEmail(),
                 loginRequest.getPassword())));
     }
 

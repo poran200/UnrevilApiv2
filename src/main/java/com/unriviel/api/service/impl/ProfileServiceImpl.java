@@ -3,8 +3,10 @@ package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.ProfileResponseDto;
 import com.unriviel.api.dto.Response;
-import com.unriviel.api.exception.UseNotfoundException;
+import com.unriviel.api.exception.UserNotFoundException;
+import com.unriviel.api.exception.UserProfileExistException;
 import com.unriviel.api.model.Profile;
+import com.unriviel.api.model.RelevantQsAns;
 import com.unriviel.api.model.User;
 import com.unriviel.api.repository.ProfileRepository;
 import com.unriviel.api.repository.ReleventQuestionAnsRepertory;
@@ -41,8 +43,13 @@ public class ProfileServiceImpl implements ProfileService {
             }
             return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED,"Profile created",
                     modelMapper.map(saveProfile, ProfileResponseDto.class));
-        } catch (UseNotfoundException e) {
-            return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,e.getMessage());
+        } catch (UserProfileExistException e) {
+            return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
+            log.info("user not found  "+ email);
+            return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,e.getMessage());
         }
     }
 
@@ -62,40 +69,56 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Profile save(Profile profile, String email) throws UseNotfoundException {
+    public Profile save(Profile profile, String email) throws UserProfileExistException, UserNotFoundException {
         Optional<User> byUsername = userService.findByEmail(email);
-        if (byUsername.isPresent()) {
-            log.info("user name is found " + byUsername.get().getUsername());
-            profile.setUser(byUsername.get());
+        if (!byUsername.isPresent()) {
+            log.info("user name not found" + email);
+            throw new UserNotFoundException("User not found!"+email);
         } else {
-            log.info("user name not found " + email);
-            throw  new UseNotfoundException(email + " not found ");
+            Optional<Profile> optionalProfile = profileRepository.findByUserEmail(email);
+            if (optionalProfile.isPresent()){
+                log.info("user profile already exist "+email);
+                throw  new UserProfileExistException(email + " User profile already  already exist ");
+
+            }
+            profile.setUser(byUsername.get());
+            log.info("user"+email+" set for profile");
+            profile.addSocialMediaLinks(profile.getSocialMediaLinks());
+            Profile saveProfile = profileRepository.save(profile);
+            if (profile.getRelevantQsAnsList() != null){
+                for (RelevantQsAns ans:profile.getRelevantQsAnsList()){
+                    releventQuestionAnsRepertory.save(new RelevantQsAns(ans.getQuestion(),ans.getAnswer(),profile));
+                }
+            }
+            log.info("profile created successfully profile id: " + saveProfile.getId());
+            return  saveProfile;
         }
-        profile.addSocialMediaLinks(profile.getSocialMediaLinks());
-        if (profile.getRelevantQsAnsList() != null) {
-            profile.setRelevantQsAnsList(profile.getRelevantQsAnsList());
-//            releventQuestionAnsRepertory.saveAll(profile.getRelevantQsAnsList());
-        }
-        Profile saveProfile = profileRepository.save(profile);
-        log.info("profile created successfully profile id: " + saveProfile.getId());
-         return saveProfile;
+
+
     }
 
     @Override
     public Response update( Profile profile,String useEmail) {
-        Optional<Profile> optionalProfile = profileRepository.findByUserEmail(useEmail);
+        Optional<Profile> optionalProfile = profileRepository.findByIdAndUserEmail(profile.getId(),useEmail);
         if (optionalProfile.isPresent()){
-            profile.setId(optionalProfile.get().getId());
-            try {
-                Profile update = save(profile, useEmail);
-                return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"profile updated",
-                        modelMapper.map(update,ProfileResponseDto.class));
-            } catch (UseNotfoundException e) {
-                log.info(e.getMessage());
-                return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,e.getMessage());
-            }
+            log.info("for update profile found by user email");
+            Profile updateProfile = optionalProfile.get();
+                    updateProfile.setId(profile.getId());
+                    updateProfile.setRelevantQsAnsList(profile.getRelevantQsAnsList());
+                    updateProfile.setUser(updateProfile.getUser());
+            Profile updatedProfile = profileRepository.save(updateProfile);
+//            for (RelevantQsAns ans:profile.getRelevantQsAnsList()){
+//                   profile.getRelevantQsAnsList().clear();
+//                  ans.setProfile(updatedProfile);
+//                  ans.setId(ans.getId());
+//                releventQuestionAnsRepertory.save(ans);
+//            }
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
+                    "profile updated",modelMapper.map(updatedProfile,ProfileResponseDto.class));
         }
-        log.info("profile not found "+useEmail);
-        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"profile not found id: "+useEmail);
+
+        log.info("profile not found by user email and profile id "+useEmail);
+        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"profile not found id: "+profile.getId()+
+                " email:  "+ useEmail +". Make sure the user email and profile id ");
     }
 }

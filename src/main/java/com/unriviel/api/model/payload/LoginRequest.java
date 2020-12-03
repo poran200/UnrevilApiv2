@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 public class LoginRequest {
 
     @NullOrNotBlank(message = "Login Username can be null but not blank")
-    private String userName;
+    private String userEmail;
 
     @NotNull(message = "Login password cannot be blank")
     @Schema(description = "Valid user password", required = true, allowableValues = "NonEmpty String")
@@ -18,8 +18,8 @@ public class LoginRequest {
 
     private DeviceInfo deviceInfo;
 
-    public LoginRequest(String userName, String password, DeviceInfo deviceInfo) {
-        this.userName = userName;
+    public LoginRequest(String userEmail, String password, DeviceInfo deviceInfo) {
+        this.userEmail = userEmail;
         this.password = password;
         this.deviceInfo = deviceInfo;
     }
@@ -27,12 +27,12 @@ public class LoginRequest {
     public LoginRequest() {
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getPassword() {

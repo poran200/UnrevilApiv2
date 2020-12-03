@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
       Optional<Profile> findByUserEmail(String userName);
+      Optional<Profile> findByIdAndUserEmail(long  id, String userName);
+//      Page<Profile> findAllByUserRoles(List<Role> roles, Pageable pageable);
 }

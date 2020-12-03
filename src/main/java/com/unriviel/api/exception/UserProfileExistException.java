@@ -1,6 +1,6 @@
 package com.unriviel.api.exception;
 
-public class UseNotfoundException  extends Exception{
+public class UserProfileExistException  extends Exception{
     /**
      * Constructs a new exception with the specified detail message.  The
      * cause is not initialized, and may subsequently be initialized by
@@ -9,7 +9,7 @@ public class UseNotfoundException  extends Exception{
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public UseNotfoundException(String message) {
+    public UserProfileExistException(String message) {
         super(message);
     }
 }

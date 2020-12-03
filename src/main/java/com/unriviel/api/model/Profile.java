@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -23,8 +25,8 @@ public class Profile   implements Serializable {
     private long id;
     private String profileImageUrl;
     @ElementCollection
-    private List<String> socialMediaLinks;
-    @OneToMany(mappedBy = "profile",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<String> socialMediaLinks;
+    @OneToMany(mappedBy = "profile",fetch = FetchType.LAZY,cascade = CascadeType.ALL ,orphanRemoval = true)
     @JsonIgnoreProperties({"profile"})
     private List<RelevantQsAns> relevantQsAnsList;
     private  int totalUploadContent;
@@ -33,9 +35,12 @@ public class Profile   implements Serializable {
     @JsonIgnore
     private User user;
 
-    public void addSocialMediaLinks(List<String> urls){
-        if (this.socialMediaLinks == null) this.socialMediaLinks = new ArrayList<>();
-        this.socialMediaLinks.addAll(urls);
+    public void addSocialMediaLinks(Set<String> urls){
+        if (this.socialMediaLinks == null)
+            this.socialMediaLinks = new HashSet<>();
+       for (String s: urls){
+           boolean add = socialMediaLinks.add(s);
+       }
     }
     public void addQuestionAns(RelevantQsAns ans){
          if (relevantQsAnsList == null){

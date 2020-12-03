@@ -1,11 +1,7 @@
 package com.unriviel.api.controller;
 
-import com.unriviel.api.dto.LoginDto;
-import com.unriviel.api.dto.UserRegDto;
-import com.unriviel.api.event.OnGenerateResetLinkEvent;
-import com.unriviel.api.event.OnRegenerateEmailVerificationEvent;
-import com.unriviel.api.event.OnUserAccountChangeEvent;
-import com.unriviel.api.event.OnUserRegistrationCompleteEvent;
+import com.unriviel.api.dto.*;
+import com.unriviel.api.event.*;
 import com.unriviel.api.exception.*;
 import com.unriviel.api.model.CustomUserDetails;
 import com.unriviel.api.model.DeviceType;
@@ -15,6 +11,7 @@ import com.unriviel.api.model.token.EmailVerificationToken;
 import com.unriviel.api.model.token.RefreshToken;
 import com.unriviel.api.security.JwtTokenProvider;
 import com.unriviel.api.service.impl.AuthService;
+import com.unriviel.api.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +28,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.validation.Valid;
 import java.util.Optional;
 
+import static com.unriviel.api.util.UrlConstrains.ProfileManagement.ROOT;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/auth")
@@ -41,12 +40,14 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider tokenProvider;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final UserService userService;
 
     @Autowired
-    public AuthController(AuthService authService, JwtTokenProvider tokenProvider, ApplicationEventPublisher applicationEventPublisher) {
+    public AuthController(AuthService authService, JwtTokenProvider tokenProvider, ApplicationEventPublisher applicationEventPublisher, UserService userService) {
         this.authService = authService;
         this.tokenProvider = tokenProvider;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.userService = userService;
     }
 
     /**
@@ -77,27 +78,41 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(description = "Logs the user in to the system and return the auth tokens")
     public ResponseEntity authenticateUser(@Parameter(description = "The LoginRequest payload") @Valid @RequestBody LoginDto loginDto) {
-            LoginRequest loginRequest = new LoginRequest();
-            loginRequest.setUserName(loginDto.getUsername());
-            loginRequest.setPassword(loginDto.getPassword());
-            DeviceInfo deviceInfo = new DeviceInfo();
-            deviceInfo.setDeviceId("258");
-            deviceInfo.setDeviceType(DeviceType.DEVICE_TYPE_WEB);
-             loginRequest.setDeviceInfo(deviceInfo);
+        LoginRequest loginRequest = getLoginRequest(loginDto);
         Authentication authentication = authService.authenticateUser(loginRequest)
                 .orElseThrow(() -> new UserLoginException("Couldn't login user [" + loginRequest + "]"));
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         logger.info("Logged in User returned [API]: " + customUserDetails.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserResponse userResponse = getUserResponse(customUserDetails);
         return authService.createAndPersistRefreshTokenForDevice(authentication, loginRequest)
                 .map(RefreshToken::getToken)
                 .map(refreshToken -> {
                     String jwtToken = authService.generateToken(customUserDetails);
-                    return ResponseEntity.ok().body(
-                            new JwtAuthenticationResponse(jwtToken, refreshToken, tokenProvider.getExpiryDuration()));
+                    JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse(jwtToken, refreshToken, tokenProvider.getExpiryDuration());
+                    LoginSussesResponse loginSussesResponse = new LoginSussesResponse(userResponse, jwtAuthenticationResponse);
+                    return ResponseEntity.ok().body(loginSussesResponse);
                 })
                 .orElseThrow(() -> new UserLoginException("Couldn't create refresh token for: [" + loginRequest + "]"));
+    }
+
+    private UserResponse getUserResponse(CustomUserDetails customUserDetails) {
+        UserResponse userResponse = userService.getUserInfo(customUserDetails);
+        UriComponentsBuilder profileLink = ServletUriComponentsBuilder.fromCurrentContextPath().path(ROOT + "/" + userResponse.getEmail());
+        userResponse.setProfileLink(profileLink.toUriString());
+        return userResponse;
+    }
+
+    private LoginRequest getLoginRequest(LoginDto loginDto) {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUserEmail(loginDto.getUserEmail());
+        loginRequest.setPassword(loginDto.getPassword());
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setDeviceId("258");
+        deviceInfo.setDeviceType(DeviceType.DEVICE_TYPE_WEB);
+        loginRequest.setDeviceInfo(deviceInfo);
+        return loginRequest;
     }
 
     /**
@@ -220,6 +235,7 @@ public class AuthController {
                 .orElseThrow(() -> new TokenRefreshException(tokenRefreshRequest.getRefreshToken(), "Unexpected error during token refresh. Please logout and login again."));
     }
 
+
     public ResponseEntity registrationUser(UserRegDto dto ,RoleName roleName){
         return authService.registerUser(dto, roleName )
                 .map(user -> {
@@ -230,5 +246,13 @@ public class AuthController {
                     return ResponseEntity.ok(new ApiResponse(true, "User registered successfully. Check your email for verification"));
                 })
                 .orElseThrow(() -> new UserRegistrationException(dto.getEmail(), "Missing user object in database"));
+    }
+
+    @PostMapping("/sendReviewerInviteLink")
+    public ResponseEntity setInvitationLinkToReviewer(@Valid @RequestBody(required = true) InviteEmailDto dto){
+        UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path("/inviteLink");
+        OnReviewerInvitationLinkEvent  reviewerInvitationLinkEvent = new OnReviewerInvitationLinkEvent(builder,dto.getEmail());
+        applicationEventPublisher.publishEvent(reviewerInvitationLinkEvent);
+        return ResponseEntity.ok().body(new ApiResponse(true,"Invitation link send successfully "));
     }
 }

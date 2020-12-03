@@ -1,36 +1,34 @@
 package com.unriviel.api.dto;
 
 
-import com.unriviel.api.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRespondDto {
+public class UserResponse {
     private String userName;
     private String email;
     private String fullName;
     private List<String> roles;
-    private boolean isAccountNotLocked;
-    private boolean isActive;
-    private  String profilelink;
+    private boolean isAccountNoneLocked;
+    private boolean isEnable;
+    private  String profileLink;
 
     @Override
     public String toString() {
-        return "UserRespondDto{" +
+        return "UserResponse{" +
                 "userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", roles=" + roles.toString() +
-                ", isAccountNotLocked=" + isAccountNotLocked +
-                ", isActive=" + isActive +
-                ", profilelink='" + profilelink + '\'' +
+                ", isAccountNotLocked=" + isAccountNoneLocked +
+                ", isActive=" + isEnable +
+                ", profilelink='" + profileLink + '\'' +
                 '}';
     }
 }
