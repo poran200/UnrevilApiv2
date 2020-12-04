@@ -9,7 +9,7 @@ import com.unriviel.api.model.Profile;
 public interface ProfileService {
     Response create(Profile profile,String userEmail);
     Response findByUserEmail(String userName);
-    Profile save(Profile profile,String userEmail) throws  UserNotFoundException, UserProfileExistException;
+    Profile save(Profile profile, String userEmail) throws  UserNotFoundException, UserProfileExistException;
 
     Response update(Profile profile, String useEmail);
 }

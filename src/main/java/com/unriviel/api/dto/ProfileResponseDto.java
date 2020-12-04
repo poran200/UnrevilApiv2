@@ -1,23 +1,22 @@
 package com.unriviel.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.unriviel.api.model.RelevantQsAns;
+import com.unriviel.api.model.FaceBookPages;
+import com.unriviel.api.model.InstagramHandles;
+import com.unriviel.api.model.WebSiteOrBlogs;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
 @Data
 @NoArgsConstructor
 public class ProfileResponseDto {
     private long id;
-    @NotEmpty
     private String profileImageUrl;
-    @NotEmpty
-    private List<String> socialMediaLinks = new ArrayList<>();
-    @JsonIgnoreProperties({"profile"})
-    private List<RelevantQsAns> relevantQsAnsList;
+    private FaceBookPages faceBookPages;
+    private InstagramHandles instagramHandles;
+    private WebSiteOrBlogs webSiteOrBlogs;
+    private String relevantQsAns_1;
+    private String relevantQsAns_2;
+    private String relevantQsAns_3;
     private  int totalUploadContent;
     private  int totalApproved;
 }

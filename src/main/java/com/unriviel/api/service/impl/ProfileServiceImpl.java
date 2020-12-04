@@ -6,10 +6,8 @@ import com.unriviel.api.dto.Response;
 import com.unriviel.api.exception.UserNotFoundException;
 import com.unriviel.api.exception.UserProfileExistException;
 import com.unriviel.api.model.Profile;
-import com.unriviel.api.model.RelevantQsAns;
 import com.unriviel.api.model.User;
 import com.unriviel.api.repository.ProfileRepository;
-import com.unriviel.api.repository.ReleventQuestionAnsRepertory;
 import com.unriviel.api.service.ProfileService;
 import com.unriviel.api.util.ResponseBuilder;
 import lombok.extern.log4j.Log4j2;
@@ -23,13 +21,11 @@ import java.util.Optional;
 @Log4j2
 public class ProfileServiceImpl implements ProfileService {
     private final ProfileRepository profileRepository;
-    private final ReleventQuestionAnsRepertory releventQuestionAnsRepertory;
     private final ModelMapper modelMapper;
     private final UserService userService;
 
-    public ProfileServiceImpl(ProfileRepository profileRepository, ReleventQuestionAnsRepertory releventQuestionAnsRepertory, ModelMapper modelMapper, UserService userService) {
+    public ProfileServiceImpl(ProfileRepository profileRepository, ModelMapper modelMapper, UserService userService) {
         this.profileRepository = profileRepository;
-        this.releventQuestionAnsRepertory = releventQuestionAnsRepertory;
         this.modelMapper = modelMapper;
         this.userService = userService;
     }
@@ -68,10 +64,11 @@ public class ProfileServiceImpl implements ProfileService {
         return profileRepository.findByUserEmail(email);
     }
 
-    @Override
+
     public Profile save(Profile profile, String email) throws UserProfileExistException, UserNotFoundException {
         Optional<User> byUsername = userService.findByEmail(email);
-        if (!byUsername.isPresent()) {
+
+        if (byUsername.isEmpty()) {
             log.info("user name not found" + email);
             throw new UserNotFoundException("User not found!"+email);
         } else {
@@ -79,17 +76,10 @@ public class ProfileServiceImpl implements ProfileService {
             if (optionalProfile.isPresent()){
                 log.info("user profile already exist "+email);
                 throw  new UserProfileExistException(email + " User profile already  already exist ");
-
             }
-            profile.setUser(byUsername.get());
-            log.info("user"+email+" set for profile");
-            profile.addSocialMediaLinks(profile.getSocialMediaLinks());
+                profile.setUser(byUsername.get());
             Profile saveProfile = profileRepository.save(profile);
-            if (profile.getRelevantQsAnsList() != null){
-                for (RelevantQsAns ans:profile.getRelevantQsAnsList()){
-                    releventQuestionAnsRepertory.save(new RelevantQsAns(ans.getQuestion(),ans.getAnswer(),profile));
-                }
-            }
+
             log.info("profile created successfully profile id: " + saveProfile.getId());
             return  saveProfile;
         }
@@ -104,15 +94,15 @@ public class ProfileServiceImpl implements ProfileService {
             log.info("for update profile found by user email");
             Profile updateProfile = optionalProfile.get();
                     updateProfile.setId(profile.getId());
-                    updateProfile.setRelevantQsAnsList(profile.getRelevantQsAnsList());
                     updateProfile.setUser(updateProfile.getUser());
-            Profile updatedProfile = profileRepository.save(updateProfile);
-//            for (RelevantQsAns ans:profile.getRelevantQsAnsList()){
-//                   profile.getRelevantQsAnsList().clear();
-//                  ans.setProfile(updatedProfile);
-//                  ans.setId(ans.getId());
-//                releventQuestionAnsRepertory.save(ans);
-//            }
+                    updateProfile.setFaceBookPages(profile.getFaceBookPages());
+                    updateProfile.setInstagramHandles(profile.getInstagramHandles());
+                    updateProfile.setWebSiteOrBlogs(profile.getWebSiteOrBlogs());
+                    updateProfile.setRelevantQsAns_1(profile.getRelevantQsAns_1());
+                    updateProfile.setRelevantQsAns_2(profile.getRelevantQsAns_2());
+                    updateProfile.setRelevantQsAns_3(profile.getRelevantQsAns_3());
+              Profile updatedProfile = profileRepository.save(updateProfile);
+
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
                     "profile updated",modelMapper.map(updatedProfile,ProfileResponseDto.class));
         }

@@ -62,6 +62,7 @@ public class ProfileController   {
     public ResponseEntity<Object> update(@PathVariable(required = true) String userEmail
            ,@Valid @RequestBody ProfileResponseDto dto){
        Profile profile = modelMapper.map(dto, Profile.class);
+       System.out.println(dto.toString());
        Response response = profileService.update(profile, userEmail);
        return ResponseEntity.status((int) response.getStatusCode()).body(response);
 

@@ -10,7 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.io.Serializable;
 
-@EqualsAndHashCode()
+@EqualsAndHashCode(of = {"id"})
 @Data
 @NoArgsConstructor
 @Entity
