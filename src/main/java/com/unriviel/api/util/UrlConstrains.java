@@ -39,4 +39,12 @@ public final class  UrlConstrains {
         public static final String ROOT = API+VERSION+"/questions";
         public static final String All ="/";
     }
+
+    public static final class UploadConfig {
+        public static final String ROOT = API+VERSION+"/config";
+        public static final String GET_BY_ID = "/{id}";
+
+
+        public static final String CREATE = "/";
+    }
 }

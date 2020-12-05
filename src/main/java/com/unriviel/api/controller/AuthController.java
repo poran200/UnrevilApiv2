@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -41,6 +42,8 @@ public class AuthController {
     private final JwtTokenProvider tokenProvider;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final UserService userService;
+    @Value("${app.client.server.host}")
+    private  String clientServerHost;
 
     @Autowired
     public AuthController(AuthService authService, JwtTokenProvider tokenProvider, ApplicationEventPublisher applicationEventPublisher, UserService userService) {
@@ -191,6 +194,7 @@ public class AuthController {
                 .orElseThrow(() -> new InvalidTokenRequestException("Email Verification Token", token, "Failed to confirm. Please generate a new email verification request"));
     }
 
+
     /**
      * Resend the email registration mail with an updated token expiry. Safe to
      * assume that the user would always click on the last re-verification email and
@@ -209,7 +213,7 @@ public class AuthController {
 
         return Optional.ofNullable(newEmailToken.getUser())
                 .map(registeredUser -> {
-                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/auth/registrationConfirmation");
+                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+":3000/confirmation?");
                     OnRegenerateEmailVerificationEvent regenerateEmailVerificationEvent = new OnRegenerateEmailVerificationEvent(registeredUser, urlBuilder, newEmailToken);
                     applicationEventPublisher.publishEvent(regenerateEmailVerificationEvent);
                     return ResponseEntity.ok(new ApiResponse(true, "Email verification resent successfully"));
@@ -239,7 +243,7 @@ public class AuthController {
     public ResponseEntity registrationUser(UserRegDto dto ,RoleName roleName){
         return authService.registerUser(dto, roleName )
                 .map(user -> {
-                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/auth/registrationConfirmation");
+                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+":3000/confirmation?");
                     OnUserRegistrationCompleteEvent onUserRegistrationCompleteEvent = new OnUserRegistrationCompleteEvent(user, urlBuilder);
                     applicationEventPublisher.publishEvent(onUserRegistrationCompleteEvent);
                     logger.info("Registered User returned [API[: " + user);
