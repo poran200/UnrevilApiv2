@@ -4,17 +4,7 @@ import com.unriviel.api.model.audit.DateAudit;
 import com.unriviel.api.validation.annotation.NullOrNotBlank;
 import org.hibernate.annotations.NaturalId;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
@@ -42,8 +32,8 @@ public class User extends DateAudit {
     @NotNull(message = "Password cannot be null")
     private String password;
 
-    @Column(name = "FIRST_NAME")
-    @NullOrNotBlank(message = "First name can not be blank")
+    @Column(name = "FULL_NAME")
+    @NullOrNotBlank(message = "Full name can not be blank")
     private String fullName;
 
 

@@ -47,4 +47,18 @@ public final class  UrlConstrains {
 
         public static final String CREATE = "/";
     }
+
+    public static final class MetadataImageUpload {
+        public static final String ROOT = API+VERSION+"/image";
+    }
+
+    public static final class VideoIdGenerate {
+        public static final String ROOT = API+VERSION+"/videoId";
+        public static  final String GENERATE ="/{numberOfId}";
+    }
+
+    public static final class VideoMetaDataManagement {
+        public static final String ROOT = API+VERSION+"/video";
+        public static  final String CREATE ="/metadata";
+    }
 }

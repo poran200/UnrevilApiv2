@@ -17,7 +17,7 @@ public class UploadConfig {
     private  String videoTitle;
     private  String videoDescription;
     @Embedded
-    private  Images images;
+    private ImagesLable imagesLable;
     @Embedded
     private  Thumbnail thumbnail;
     @Embedded
@@ -29,7 +29,7 @@ public class UploadConfig {
     @Embedded
     private  Location location ;
     @Embedded
-    private  Tag tag;
+    private  TagLabel tag;
     @Embedded
     private Usages usages;
 

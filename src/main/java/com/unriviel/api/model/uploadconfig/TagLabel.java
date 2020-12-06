@@ -4,9 +4,8 @@ import lombok.Data;
 
 import javax.persistence.Embeddable;
 
-@Embeddable
-@Data
-public class Images {
-    private String imageTitle;
-    private String imageParagraph;
+@Data@Embeddable
+public class TagLabel {
+    private String tagTitle;
+    private  String tagParagraph;
 }

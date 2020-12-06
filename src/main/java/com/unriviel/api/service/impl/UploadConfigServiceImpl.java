@@ -1,8 +1,9 @@
-package com.unriviel.api.service;
+package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.Response;
 import com.unriviel.api.model.uploadconfig.UploadConfig;
 import com.unriviel.api.repository.UploadConfigRepository;
+import com.unriviel.api.service.UploadConfigService;
 import com.unriviel.api.util.ResponseBuilder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
