@@ -1,16 +1,17 @@
 package com.unriviel.api.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unriviel.api.dto.Response;
 import com.unriviel.api.dto.VideoMetadataDto;
 import com.unriviel.api.model.metadata.VideoMetaData;
 import com.unriviel.api.repository.VideoMetaDataRepository;
 import com.unriviel.api.service.VideoMetaDataService;
+import com.unriviel.api.util.ResponseBuilder;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
 @Log4j2
 @Service
 public class VideoMetaDataServiceImpl implements VideoMetaDataService {
@@ -22,43 +23,48 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         this.modelMapper = modelMapper;
     }
 
-    @Override
-    public VideoMetaData createFromDto(VideoMetadataDto dto) {
-//        var videoMetaData = modelMapper.map(dto, VideoMetaData.class);
-//        if (dto.getImages() != null){
-//            var imageJson = objectToJSonString(dto.getImages());
-//            videoMetaData.setImages(imageJson);
-//        }
-//        if (dto.getLocations() != null){
-//            var jSonString = objectToJSonString(dto.getLocations());
-//            videoMetaData.setLocations(jSonString);
-//        }
-        return null;
-    }
-
-    public String objectToJSonString(Object dto){
-         ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(dto);
-        } catch (JsonProcessingException e) {
-            log.info("json mapping exception :- "+e.getMessage());
-            e.printStackTrace();
-            return "";
-        }
-    }
 
     @Override
-    public Response save(VideoMetaData metaData) {
-        return null;
+    public Response save(VideoMetadataDto metadataDto) {
+        var videoMetaData = modelMapper.map(metadataDto, VideoMetaData.class);
+        var existsById = videoMetaDataRepository.existsById(videoMetaData.getVideoId());
+        if (existsById) {
+            log.info("the video id exist");
+            return ResponseBuilder.getFailureResponse(HttpStatus.CONFLICT,
+                    "the Video id already Exists [videoId] = " + metadataDto.getVideoId());
+        } else
+            try {
+                var saveMetadata = videoMetaDataRepository.save(videoMetaData);
+                if (saveMetadata != null) {
+                    return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED,
+                            "video metadata create  successfully", saveMetadata);
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                log.error(e.getLocalizedMessage());
+
+            }
+        return ResponseBuilder.getInternalServerError();
+
     }
 
     @Override
     public Response findByVideoId(String videoId) {
-        return null;
+        var optionalVideoMetaData = videoMetaDataRepository.findById(videoId);
+        if (optionalVideoMetaData.isPresent()){
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"Video meta data  found",optionalVideoMetaData.get());
+        }
+        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
+                "Video metadata not found [id]="+videoId);
     }
 
     @Override
     public Response finByUserEmail(String email, Pageable pageable) {
+//        var page = videoMetaDataRepository.findAllByUserEmailAndOrderByCreatedAtDesc(email, pageable);
+//        if (page.hasContent()){
+//            return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
+//        }
+//        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"No contend found");
         return null;
     }
 

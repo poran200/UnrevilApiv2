@@ -6,40 +6,43 @@ import com.unriviel.api.model.metadata.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 public class VideoMetadataDto {
+    @NotEmpty(message = "Video id can not  empty")
     private String videoId;
     private String videoName;
     private String videoType;
     private String videoUrl;
-    private String title;
-    private String description;
     private String videoEncoding;
     private long videoDuration;
     private long videoSize;
     private  int videoFps;
     private int videoResolution;
-//    @Type(type = "jsonb")
-//    private String images;
-    private List<Images> images = new ArrayList<>();
+
+    private String title;
+    private String description;
+    @Size(min=1, max=3,message = "Minimum 1 image attach on video and Max 3")
+    private List<Images> images;
     private String thumbnailUrl;
     private boolean isAdultContent;
     private boolean isIncludePromotion;
     private String recodedYear;
-//    @Type(type = "jsonb")
-//    private String locations;
-    private List<Location> locations = new ArrayList<>();
-    @ElementCollection
+
+    List<Location> locations;
+
     private List<String> tags = new ArrayList<>();
-    @Embedded
+
     private Audio audio;
-    @ElementCollection
+
     private List<Integer> contentUses = new ArrayList<>();
     private boolean isApproved;
+    @NotEmpty(message = "Must be given the influencer email")
+    private String userEmail;
+
 }

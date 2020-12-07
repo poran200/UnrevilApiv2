@@ -1,5 +1,6 @@
 package com.unriviel.api.model.metadata;
 
+import com.unriviel.api.model.audit.DateAudit;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = "videoId")
+@EqualsAndHashCode(of = "videoId", callSuper = false)
 @Entity
 @TypeDef(name = "json",typeClass = JsonStringType.class)
-public class VideoMetaData  implements Serializable {
+public class VideoMetaData extends DateAudit implements Serializable {
      static final long serialVersionUID = 1L;
      @Id
      private String videoId;

@@ -161,15 +161,7 @@
             <artifactId>modelmapper</artifactId>
             <version>2.3.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.json</artifactId>
-            <version>1.1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-        </dependency>
+
 
     </dependencies>
 
