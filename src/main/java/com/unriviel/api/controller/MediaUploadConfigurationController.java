@@ -5,7 +5,10 @@ import com.unriviel.api.model.uploadconfig.UploadConfig;
 import com.unriviel.api.service.UploadConfigService;
 import com.unriviel.api.util.UrlConstrains;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @APiController
 @RequestMapping(UrlConstrains.UploadConfig.ROOT)
@@ -20,9 +23,9 @@ public class MediaUploadConfigurationController {
         var response = configService.create(config);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
-    @GetMapping(UrlConstrains.UploadConfig.GET_BY_ID)
-    public  ResponseEntity<Object> findById(@PathVariable(required = true) long id){
-        var response = configService.findById(id);
+    @GetMapping(UrlConstrains.UploadConfig.GET)
+    public  ResponseEntity<Object> findById(){
+        var response = configService.findById(1);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
 }

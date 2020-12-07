@@ -42,7 +42,7 @@ public final class  UrlConstrains {
 
     public static final class UploadConfig {
         public static final String ROOT = API+VERSION+"/config";
-        public static final String GET_BY_ID = "/{id}";
+        public static final String GET = "/";
 
 
         public static final String CREATE = "/";
@@ -58,7 +58,18 @@ public final class  UrlConstrains {
     }
 
     public static final class VideoMetaDataManagement {
+        public static final String ROOT = API+VERSION+"/metadata";
+
+        public static  final String CREATE ="/";
+        public static  final String GET_BY_ID ="/metadata/{id}";
+        public static  final String GET_BY_EMAIL ="/{email}";
+    }
+
+    public static final class VideoUpload {
         public static final String ROOT = API+VERSION+"/video";
-        public static  final String CREATE ="/metadata";
+
+        public static  final String CREATE ="/upload";
+        public static  final String GET_BY_ID ="/{name}";
+
     }
 }

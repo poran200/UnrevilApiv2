@@ -8,11 +8,10 @@ import com.unriviel.api.util.DtoToModel;
 import com.unriviel.api.util.UrlConstrains;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +28,8 @@ public class VideoMetadataController {
         this.videoMetaDataService = videoMetaDataService;
         this.dtoToModel = dtoToModel;
     }
-    @GetMapping("/")
-    public VideoMetadataDto getById(){
+    @GetMapping(UrlConstrains.VideoMetaDataManagement.GET_BY_ID)
+    public VideoMetadataDto getById(@PathVariable String id){
         VideoMetadataDto dto = new VideoMetadataDto();
         dto.setVideoId("video-1");
         dto.setVideoName("name");
@@ -71,6 +70,15 @@ public class VideoMetadataController {
 
     @PostMapping(UrlConstrains.VideoMetaDataManagement.CREATE)
     public ResponseEntity<Object> create(@RequestBody(required = true) VideoMetadataDto dto ){
-         return null;
+        var response = videoMetaDataService.save(dto);
+        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+    }
+    @GetMapping(UrlConstrains.VideoMetaDataManagement.GET_BY_EMAIL)
+    public ResponseEntity<Object> findByEmail(@PathVariable String email,
+                                              @RequestParam(defaultValue = "0") int pageNumber,
+                                              @RequestParam(defaultValue = "20") int pageSize){
+        var pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+        var response = videoMetaDataService.finByUserEmail(email, pageRequest);
+        return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
 }
