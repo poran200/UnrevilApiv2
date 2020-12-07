@@ -5,11 +5,11 @@ import java.util.regex.Pattern;
 
 public class ImageValidator{
 
-    private Pattern pattern;
-    private Matcher matcher;
+    private final Pattern pattern;
+    private  Matcher matcher;
 
     private static final String IMAGE_PATTERN =
-            "([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)";
+            "(.*/)*.+\\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$";
 
     public ImageValidator(){
         pattern = Pattern.compile(IMAGE_PATTERN);
