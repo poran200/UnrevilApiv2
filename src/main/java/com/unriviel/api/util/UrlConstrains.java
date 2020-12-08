@@ -61,15 +61,17 @@ public final class  UrlConstrains {
         public static final String ROOT = API+VERSION+"/metadata";
 
         public static  final String CREATE ="/";
-        public static  final String GET_BY_ID ="/metadata/{id}";
+        public static  final String UPDATE ="/{videoId}";
+        public static  final String GET_BY_ID ="/{id}";
         public static  final String GET_BY_EMAIL ="/{email}";
     }
 
     public static final class VideoUpload {
         public static final String ROOT = API+VERSION+"/video";
 
-        public static  final String CREATE ="/upload";
+        public static  final String CREATE ="/upload/{videoId}/{userEmail}";
         public static  final String GET_BY_ID ="/{name}";
 
+        public static final String REUPLOAD = "/reUpload/{videoId}/{userEmail}";
     }
 }

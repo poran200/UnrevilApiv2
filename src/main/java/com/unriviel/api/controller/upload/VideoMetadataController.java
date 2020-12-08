@@ -73,6 +73,13 @@ public class VideoMetadataController {
         var response = videoMetaDataService.save(dto);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
+    @PutMapping(UrlConstrains.VideoMetaDataManagement.UPDATE)
+    public ResponseEntity<Object> update(@RequestBody(required = true) VideoMetadataDto dto,
+                                         @PathVariable(required = true) String videoId
+                                         ){
+        var response = videoMetaDataService.update(videoId,dto);
+        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+    }
     @GetMapping(UrlConstrains.VideoMetaDataManagement.GET_BY_EMAIL)
     public ResponseEntity<Object> findByEmail(@PathVariable String email,
                                               @RequestParam(defaultValue = "0") int pageNumber,

@@ -5,11 +5,9 @@ import com.unriviel.api.dto.VideoResponse;
 import com.unriviel.api.exception.FileStorageException;
 import com.unriviel.api.exception.MyFileNotFoundException;
 import com.unriviel.api.properties.VideoUploadProperties;
-import com.unriviel.api.util.ContentType;
+import com.unriviel.api.service.VideoMetaDataService;
 import com.unriviel.api.util.ResponseBuilder;
 import com.unriviel.api.util.UrlConstrains;
-import com.unriviel.api.util.VideoIdGenerator;
-import com.unriviel.api.validation.validator.ImageValidator;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -17,6 +15,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,11 +31,14 @@ import java.util.Objects;
 @Service
 public class VideoStorageService {
     private final Path fileStorageLocation;
-
+    private final VideoMetaDataService metaDataService;
+    private final UserService userService;
     @Autowired
-    public VideoStorageService(VideoUploadProperties fileStorageProperties) {
+    public VideoStorageService(VideoUploadProperties fileStorageProperties, VideoMetaDataService metaDataService, UserService userService) {
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
                 .toAbsolutePath().normalize();
+        this.metaDataService = metaDataService;
+        this.userService = userService;
 
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -46,16 +48,24 @@ public class VideoStorageService {
         }
     }
 
-    public Response storeFile(MultipartFile file, HttpServletRequest request) {
+    public Response storeFile(MultipartFile file,String videoId, HttpServletRequest request,String userEmail) {
         // Normalize file name
-        ImageValidator validator = new ImageValidator();
-
+        var existsByEmail = userService.existsByEmail(userEmail);
+        if (!existsByEmail){
+            return  ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"User not found [Email]="+userEmail);
+        }else if(!metaDataService.isExistById(videoId)) {
+                return  ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
+                        "Video id  not found" +"make sure you create first"+ " [VideoID]="+videoId);
+        }
         String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-//        if (!validator.validate(fileName)){
-//            return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,
-//                    "file is not support only allow[“.jpg”, “.gif”,”.png”, “.bmp”]");
-//        }
-
+        var replaceFileName = replaceFileName(file, videoId);
+        Path filePath = this.fileStorageLocation.resolve(replaceFileName).normalize();
+        var path = ServletUriComponentsBuilder.fromRequest(request)
+                .replacePath(UrlConstrains.VideoUpload.ROOT).path("/");
+        String finalReplaceName = replaceFileName(file,videoId);
+//        var responseBefor = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+//
+//        metaDataService.saveVideoStatus(responseBefor);
 
         try {
             // Check if the file's name contains invalid characters
@@ -63,32 +73,69 @@ public class VideoStorageService {
 //                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
                 return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Sorry! Filename contains invalid path sequence "+originalFileName);
             }
-            Path filePath = this.fileStorageLocation.resolve(originalFileName).normalize();
-            Resource urlResource = new UrlResource(filePath.toUri());
-//            String fileDownloadUri = "https://localhost:9004/"+ UrlConstrains.VideoUpload.ROOT+"/";
-            var path = ServletUriComponentsBuilder.fromRequest(request)
-                    .replacePath(UrlConstrains.VideoUpload.ROOT).path("/");
-            if (isFileExits(file,urlResource)) {
-                return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED,
-                        "file save successfully ",
-                        new VideoResponse(originalFileName,
-                        path.path(originalFileName).toUriString()));
-            }
-            String finalReplaceName = replaceFileName(file);
-            // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = this.fileStorageLocation.resolve(finalReplaceName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()){
+                return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"file is already exits");
+            }else {
 
-            return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED,
-                    "file save successfully",
-                    new VideoResponse(finalReplaceName,
-                            path.path(finalReplaceName).toUriString()
-                            ));
-        } catch (IOException ex) {
+                // Copy file to the target location (Replacing existing file with the same name)
+                Path targetLocation = this.fileStorageLocation.resolve(finalReplaceName);
+                Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                var responseAfter = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), true, userEmail);
+                metaDataService.saveVideoStatus(responseAfter);
+                log.info("video save successfully");
+                return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED,
+                        "file save successfully", responseAfter);
+            }
+
+        }catch (MultipartException e){
+            var responseException = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+            metaDataService.saveVideoStatus(responseException);
             return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Could not store file " + file.getOriginalFilename() + ". Please try again!");
         }
-    }
+        catch (IOException e) {
+            var responseException = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+            metaDataService.saveVideoStatus(responseException);
+            e.printStackTrace();
+            return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Could not store file " + file.getOriginalFilename() + ". Please try again!");
+        }
 
+    }
+  public Response reStore(MultipartFile file,String videoId,String userEmail,HttpServletRequest req){
+
+      return   storeFile(file,videoId,req,userEmail);
+//      var originalFilename = file.getOriginalFilename();
+//      assert originalFilename != null;
+//      var replaceFileName = replaceFileName(file, videoId);
+//      Path filePath = this.fileStorageLocation.resolve(replaceFileName).normalize();
+//      var path = ServletUriComponentsBuilder.fromRequest(req)
+//              .replacePath(UrlConstrains.VideoUpload.ROOT).path("/").path(replaceFileName);
+//      try {
+//          if(originalFilename.contains("..")) {
+////                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
+//              return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Sorry! Filename contains invalid path sequence "+originalFilename);
+//          }
+//          Resource resource = new UrlResource(filePath.toUri());
+//          if (!resource.exists()){
+//              Path targetLocation = this.fileStorageLocation.resolve(replaceFileName);
+//              Files.copy(file.getInputStream(),targetLocation, StandardCopyOption.REPLACE_EXISTING);
+//
+//              var videoResponse = new VideoResponse(videoId, path.toUriString(), true, userEmail);
+//              metaDataService.saveVideoStatus(videoResponse);
+//              return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
+//                      "file saved",videoResponse);
+//          }else {
+//              return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"File not found! id->"+videoId);
+//          }
+//      } catch (MalformedURLException e) {
+//          e.printStackTrace();
+//          throw new  MyFileNotFoundException("file not found "+file.getOriginalFilename() +" ");
+//      } catch (IOException e) {
+//          e.printStackTrace();
+//          throw new  MyFileNotFoundException("file not found "+file.getOriginalFilename());
+//      }
+
+  }
     private boolean isFileExits(MultipartFile file, Resource resource) throws IOException {
         if (resource.exists()){
             log.info("resource already exist "+resource.getFilename());
@@ -99,9 +146,9 @@ public class VideoStorageService {
         return false;
     }
 
-    private String replaceFileName(MultipartFile file) {
+    private String replaceFileName(MultipartFile file ,String videoId) {
         String[] split = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
-        return split[0]= VideoIdGenerator.generateUUID(ContentType.VIDEO,1000) +"."+split[1];
+        return split[0]= videoId+"."+split[1];
     }
 
     public Resource loadFileAsResource(String fileName)  {

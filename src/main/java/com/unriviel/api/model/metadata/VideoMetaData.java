@@ -8,7 +8,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +51,12 @@ public class VideoMetaData extends DateAudit implements Serializable {
      List<Location> locations;
      @ElementCollection
      private List<String> tags = new ArrayList<>();
-     @Embedded
+     @Type(type = "json")
+     @Column(columnDefinition = "json")
      private Audio audio;
      @ElementCollection
      private List<Integer> contentUses = new ArrayList<>();
      private boolean isApproved;
      private String userEmail;
+     private boolean isUploaded;
 }

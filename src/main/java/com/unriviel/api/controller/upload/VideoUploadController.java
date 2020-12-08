@@ -19,17 +19,36 @@ import java.util.concurrent.CompletableFuture;
 @Log4j2
 @APiController
 @RequestMapping(UrlConstrains.VideoUpload.ROOT)
-public class VideoUploadController {
+public class VideoUploadController   {
     private final VideoStorageService videoStorageService;
-
     public VideoUploadController(VideoStorageService videoStorageService) {
         this.videoStorageService = videoStorageService;
     }
-    @Async
+
     @PostMapping(UrlConstrains.VideoUpload.CREATE)
-    public CompletableFuture<ResponseEntity<Object>> upload(@RequestBody(required = true)MultipartFile file,HttpServletRequest request){
-        var response = videoStorageService.storeFile(file,request);
-        return CompletableFuture.completedFuture(ResponseEntity.status((int) response.getStatusCode()).body(response));
+    public ResponseEntity<Object> upload(@RequestBody(required = true)MultipartFile file,
+                                         @PathVariable String videoId,
+                                         @PathVariable String userEmail,
+                                         HttpServletRequest request) {
+        if (videoId == null || userEmail == null){
+            ResponseEntity.badRequest().body("user email and videoId require");
+        }
+           var response = videoStorageService.storeFile(file,videoId,request,userEmail);
+           return (ResponseEntity.status((int) response.getStatusCode()).body(response));
+
+    }
+    @Async
+    @PostMapping(UrlConstrains.VideoUpload.REUPLOAD)
+    public CompletableFuture<ResponseEntity<Object>> reUpload(@RequestBody(required = true)MultipartFile file,
+                                                              @PathVariable(required = true) String videoId,
+                                                              @PathVariable(required = true) String userEmail,
+                                                              HttpServletRequest request) throws RuntimeException {
+        if (videoId == null || userEmail == null){
+            ResponseEntity.badRequest().body("user email and videoId require");
+        }
+            var response = videoStorageService.reStore(file,videoId,userEmail,request);
+            return CompletableFuture.completedFuture(ResponseEntity.status((int) response.getStatusCode()).body(response));
+
     }
     @GetMapping("/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) throws IOException {

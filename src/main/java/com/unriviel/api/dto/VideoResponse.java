@@ -8,4 +8,6 @@ import lombok.Data;
 public class VideoResponse {
     private String videoId;
     private String  url;
+    private boolean isUploaded;
+    private String userEmail;
 }
