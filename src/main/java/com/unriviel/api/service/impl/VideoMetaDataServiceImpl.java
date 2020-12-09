@@ -61,12 +61,11 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
 
     @Override
     public Response finByUserEmail(String email, Pageable pageable) {
-//        var page = videoMetaDataRepository.findAllByUserEmailAndOrderByCreatedAtDesc(email, pageable);
-//        if (page.hasContent()){
-//            return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
-//        }
-//        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"No contend found");
-        return null;
+        var page = videoMetaDataRepository.findAllByUserEmail(email, pageable);
+        if (page.hasContent()){
+            return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
+        }
+        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"No contend found");
     }
 
     @Override
