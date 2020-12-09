@@ -1,11 +1,15 @@
 package com.unriviel.api.controller.upload;
 
 import com.unriviel.api.annotation.APiController;
+import com.unriviel.api.service.VideoMetaDataService;
+import com.unriviel.api.service.impl.UserService;
 import com.unriviel.api.service.impl.VideoStorageService;
+import com.unriviel.api.util.ResponseBuilder;
 import com.unriviel.api.util.UrlConstrains;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -21,8 +25,12 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping(UrlConstrains.VideoUpload.ROOT)
 public class VideoUploadController   {
     private final VideoStorageService videoStorageService;
-    public VideoUploadController(VideoStorageService videoStorageService) {
+    private final VideoMetaDataService metaDataService;
+    private final UserService userService;
+    public VideoUploadController(VideoStorageService videoStorageService, VideoMetaDataService metaDataService, UserService userService) {
         this.videoStorageService = videoStorageService;
+        this.metaDataService = metaDataService;
+        this.userService = userService;
     }
 
     @PostMapping(UrlConstrains.VideoUpload.CREATE)
@@ -33,9 +41,19 @@ public class VideoUploadController   {
         if (videoId == null || userEmail == null){
             ResponseEntity.badRequest().body("user email and videoId require");
         }
-           var response = videoStorageService.storeFile(file,videoId,request,userEmail);
-           return (ResponseEntity.status((int) response.getStatusCode()).body(response));
-
+        var existsByEmail = userService.existsByEmail(userEmail);
+        if (!existsByEmail){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body( ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
+                    "User not found [Email]="+userEmail));
+        }else if(!metaDataService.isExistById(videoId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body( ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
+                    "Video id  not found" +"make sure you create first"+ " [VideoID]="+videoId));
+        }else {
+            var response = videoStorageService.storeFile(file, videoId, request, userEmail);
+            return (ResponseEntity.status((int) response.getStatusCode()).body(response));
+        }
     }
     @Async
     @PostMapping(UrlConstrains.VideoUpload.REUPLOAD)

@@ -50,13 +50,7 @@ public class VideoStorageService {
 
     public Response storeFile(MultipartFile file,String videoId, HttpServletRequest request,String userEmail) {
         // Normalize file name
-        var existsByEmail = userService.existsByEmail(userEmail);
-        if (!existsByEmail){
-            return  ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"User not found [Email]="+userEmail);
-        }else if(!metaDataService.isExistById(videoId)) {
-                return  ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
-                        "Video id  not found" +"make sure you create first"+ " [VideoID]="+videoId);
-        }
+
         String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         var replaceFileName = replaceFileName(file, videoId);
         Path filePath = this.fileStorageLocation.resolve(replaceFileName).normalize();
