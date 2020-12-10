@@ -38,8 +38,8 @@ public class VideoUploadController   {
                                          @PathVariable String videoId,
                                          @PathVariable String userEmail,
                                          HttpServletRequest request) {
-        if (videoId == null || userEmail == null){
-            ResponseEntity.badRequest().body("user email and videoId require");
+        if (videoId == null || userEmail == null || file.isEmpty()){
+            ResponseEntity.badRequest().body("user email and videoId file is  require");
         }
         var existsByEmail = userService.existsByEmail(userEmail);
         if (!existsByEmail){
@@ -61,7 +61,7 @@ public class VideoUploadController   {
                                                               @PathVariable(required = true) String videoId,
                                                               @PathVariable(required = true) String userEmail,
                                                               HttpServletRequest request) throws RuntimeException {
-        if (videoId == null || userEmail == null){
+        if (videoId == null || userEmail == null || file.isEmpty()){
             ResponseEntity.badRequest().body("user email and videoId require");
         }
             var response = videoStorageService.reStore(file,videoId,userEmail,request);
