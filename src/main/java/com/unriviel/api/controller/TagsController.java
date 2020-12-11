@@ -24,9 +24,14 @@ public class TagsController {
         var collect = videoMetaDataRepository.findAll().stream().map(VideoMetaData::getTags).collect(Collectors.toList());
         List<String> tagList = new ArrayList<>();
         for (List<String> list : collect){
-            tagList.addAll(list.stream().filter(s -> s.startsWith(tag)).collect(Collectors.toList()));
+            tagList.addAll(list.stream()
+                    .filter(s -> s.startsWith(tag))
+                    .collect(Collectors.toList()));
         }
-        var finalList = tagList.stream().filter(s -> s.startsWith(tag)).limit(10).collect(Collectors.toList());
+        var finalList = tagList.stream()
+                .filter(s -> s.startsWith(tag))
+                .limit(10)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(finalList);
     }
