@@ -63,7 +63,6 @@ public class UserService {
         dto.setRoles( customUserDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         dto.setAccountNoneLocked(customUserDetails.isAccountNonLocked());
-        dto.setEnable(customUserDetails.isEnabled());
         return  dto;
     }
 
@@ -161,5 +160,23 @@ public class UserService {
 
         logger.info("Removing refresh token associated with device [" + userDevice + "]");
         refreshTokenService.deleteById(userDevice.getRefreshToken().getId());
+    }
+    public boolean userAccountDisable(String email){
+        var user = findByEmail(email);
+        if (user.isPresent()){
+            user.get().setActive(false);
+            userRepository.save(user.get());
+            return true;
+        }
+        return  false;
+    }
+    public boolean userAccountEnable(String email){
+        var user = findByEmail(email);
+        if (user.isPresent()){
+            user.get().setActive(true);
+            userRepository.save(user.get());
+            return true;
+        }
+        return  false;
     }
 }

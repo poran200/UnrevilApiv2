@@ -16,7 +16,6 @@ public class UserResponse {
     private String fullName;
     private List<String> roles;
     private boolean isAccountNoneLocked;
-    private boolean isEnable;
     private  String profileLink;
 
     @Override
@@ -27,7 +26,6 @@ public class UserResponse {
                 ", fullName='" + fullName + '\'' +
                 ", roles=" + roles.toString() +
                 ", isAccountNotLocked=" + isAccountNoneLocked +
-                ", isActive=" + isEnable +
                 ", profilelink='" + profileLink + '\'' +
                 '}';
     }
