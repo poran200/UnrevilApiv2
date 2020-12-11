@@ -133,6 +133,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse(true, "Log out successful"));
     }
     @PostMapping("/disable/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity disableUser(@PathVariable(required = true) String email){
            if (userService.userAccountDisable(email)){
                return ResponseEntity.ok(new ApiResponse(true,"user["+email+"] account disable "));
@@ -140,6 +141,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new ApiResponse(false,email +" user not found"));
     }
     @PostMapping("/enable/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity enableUser(@PathVariable(required = true) String email){
         if (userService.userAccountEnable(email)){
             return ResponseEntity.ok(new ApiResponse(true,"user["+email+"] account enable "));

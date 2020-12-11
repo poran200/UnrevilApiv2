@@ -16,6 +16,7 @@ public class UserResponse {
     private String fullName;
     private List<String> roles;
     private boolean isAccountNoneLocked;
+    private  boolean enable;
     private  String profileLink;
 
     @Override

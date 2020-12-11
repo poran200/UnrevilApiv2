@@ -63,6 +63,7 @@ public class UserService {
         dto.setRoles( customUserDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         dto.setAccountNoneLocked(customUserDetails.isAccountNonLocked());
+        dto.setEnable(customUserDetails.getActive());
         return  dto;
     }
 
