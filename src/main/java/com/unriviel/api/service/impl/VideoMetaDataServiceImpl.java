@@ -85,6 +85,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
             data.setVideoId(response.getVideoId());
             data.setVideoUrl(response.getUrl());
             data.setUploaded(response.isUploaded());
+            data.setUserEmail(response.getUserEmail());
             videoMetaDataRepository.save(data);
         }else {
             videoMetaDataRepository.save(metaData);
