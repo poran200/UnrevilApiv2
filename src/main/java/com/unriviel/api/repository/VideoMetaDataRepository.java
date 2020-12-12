@@ -12,7 +12,7 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
 //    Page<VideoMetaData> findAllByUserEmailAndOrderByCreatedAtDesc(String userEmail, Pageable pageable);
 
 //    Page<VideoMetaData> findAllByUserEmailAndOrderByCreatedAt(String eamil, Pageable pageable);
-      Page<VideoMetaData> findAllByUserEmail(String email, Pageable pageable);
+      Page<VideoMetaData> findAllByUploaderEmail(String email, Pageable pageable);
 //      List<VideoMetaData>findAllTagsStartingWith(String tag);
       Page<VideoMetaData>findAllByTagsStartingWith(String tag,Pageable pageable);
 //      @Query("select VideoMetaData.tags from VideoMetaData")

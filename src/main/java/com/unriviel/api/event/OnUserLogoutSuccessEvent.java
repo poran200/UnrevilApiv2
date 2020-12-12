@@ -1,6 +1,5 @@
 package com.unriviel.api.event;
 
-import com.unriviel.api.model.payload.LogOutRequest;
 import org.springframework.context.ApplicationEvent;
 
 import java.time.Instant;
@@ -10,14 +9,12 @@ public class OnUserLogoutSuccessEvent extends ApplicationEvent {
 
     private final String userEmail;
     private final String token;
-    private final transient LogOutRequest logOutRequest;
     private final Date eventTime;
 
-    public OnUserLogoutSuccessEvent(String userEmail, String token, LogOutRequest logOutRequest) {
+    public OnUserLogoutSuccessEvent(String userEmail, String token) {
         super(userEmail);
         this.userEmail = userEmail;
         this.token = token;
-        this.logOutRequest = logOutRequest;
         this.eventTime = Date.from(Instant.now());
     }
 
@@ -29,9 +26,9 @@ public class OnUserLogoutSuccessEvent extends ApplicationEvent {
         return token;
     }
 
-    public LogOutRequest getLogOutRequest() {
-        return logOutRequest;
-    }
+//    public LogOutRequest getLogOutRequest() {
+//        return logOutRequest;
+//    }
 
     public Date getEventTime() {
         return eventTime;

@@ -8,7 +8,6 @@ import com.unriviel.api.model.DeviceType;
 import com.unriviel.api.model.RoleName;
 import com.unriviel.api.model.payload.*;
 import com.unriviel.api.model.token.EmailVerificationToken;
-import com.unriviel.api.model.token.RefreshToken;
 import com.unriviel.api.security.JwtTokenProvider;
 import com.unriviel.api.service.impl.AuthService;
 import com.unriviel.api.service.impl.UserService;
@@ -89,15 +88,11 @@ public class AuthController {
         logger.info("Logged in User returned [API]: " + customUserDetails.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserResponse userResponse = getUserResponse(customUserDetails);
-        return authService.createAndPersistRefreshTokenForDevice(authentication, loginRequest)
-                .map(RefreshToken::getToken)
-                .map(refreshToken -> {
                     String jwtToken = authService.generateToken(customUserDetails);
-                    JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse(jwtToken, refreshToken, tokenProvider.getExpiryDuration());
+                    JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse(jwtToken, null, tokenProvider.getExpiryDuration());
                     LoginSussesResponse loginSussesResponse = new LoginSussesResponse(userResponse, jwtAuthenticationResponse);
                     return ResponseEntity.ok().body(loginSussesResponse);
-                })
-                .orElseThrow(() -> new UserLoginException("Couldn't create refresh token for: [" + loginRequest + "]"));
+
     }
 
     private UserResponse getUserResponse(CustomUserDetails customUserDetails) {

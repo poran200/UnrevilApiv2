@@ -1,16 +1,4 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 package com.unriviel.api.controller;
 
 import com.unriviel.api.annotation.CurrentUser;
@@ -18,10 +6,7 @@ import com.unriviel.api.event.OnUserAccountChangeEvent;
 import com.unriviel.api.event.OnUserLogoutSuccessEvent;
 import com.unriviel.api.exception.UpdatePasswordException;
 import com.unriviel.api.model.CustomUserDetails;
-import com.unriviel.api.model.DeviceType;
 import com.unriviel.api.model.payload.ApiResponse;
-import com.unriviel.api.model.payload.DeviceInfo;
-import com.unriviel.api.model.payload.LogOutRequest;
 import com.unriviel.api.model.payload.UpdatePasswordRequest;
 import com.unriviel.api.service.impl.AuthService;
 import com.unriviel.api.service.impl.UserService;
@@ -119,16 +104,16 @@ public class UserController {
     @Operation(description = "Logs the specified user device and clears the refresh tokens associated with it")
     public ResponseEntity logoutUser(@CurrentUser CustomUserDetails customUserDetails) {
 
-            DeviceInfo deviceInfo = new DeviceInfo();
-            deviceInfo.setDeviceId("258");
-            deviceInfo.setDeviceType(DeviceType.DEVICE_TYPE_WEB);
-            LogOutRequest logOutRequest = new LogOutRequest();
-            logOutRequest.setDeviceInfo(deviceInfo);
+//            DeviceInfo deviceInfo = new DeviceInfo();
+//            deviceInfo.setDeviceId("258");
+//            deviceInfo.setDeviceType(DeviceType.DEVICE_TYPE_WEB);
+//            LogOutRequest logOutRequest = new LogOutRequest();
+//            logOutRequest.setDeviceInfo(deviceInfo);
 
-        userService.logoutUser(customUserDetails, logOutRequest);
+//        userService.logoutUser(customUserDetails, logOutRequest);
         Object credentials = SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
-        OnUserLogoutSuccessEvent logoutSuccessEvent = new OnUserLogoutSuccessEvent(customUserDetails.getEmail(), credentials.toString(), logOutRequest);
+        OnUserLogoutSuccessEvent logoutSuccessEvent = new OnUserLogoutSuccessEvent(customUserDetails.getEmail(), credentials.toString());
         applicationEventPublisher.publishEvent(logoutSuccessEvent);
         return ResponseEntity.ok(new ApiResponse(true, "Log out successful"));
     }

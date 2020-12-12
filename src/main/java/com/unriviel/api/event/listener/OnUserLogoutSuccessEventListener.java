@@ -2,7 +2,6 @@ package com.unriviel.api.event.listener;
 
 import com.unriviel.api.cache.LoggedOutJwtTokenCache;
 import com.unriviel.api.event.OnUserLogoutSuccessEvent;
-import com.unriviel.api.model.payload.DeviceInfo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -21,8 +20,7 @@ public class OnUserLogoutSuccessEventListener implements ApplicationListener<OnU
 
     public void onApplicationEvent(OnUserLogoutSuccessEvent event) {
         if (null != event) {
-            DeviceInfo deviceInfo = event.getLogOutRequest().getDeviceInfo();
-            logger.info(String.format("Log out success event received for user [%s] for device [%s]", event.getUserEmail(), deviceInfo));
+            logger.info(String.format("Log out success event received for user [%s]", event.getUserEmail()));
             tokenCache.markLogoutEventForToken(event);
         }
     }
