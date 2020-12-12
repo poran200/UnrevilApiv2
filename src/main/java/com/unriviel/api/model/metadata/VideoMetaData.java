@@ -1,5 +1,7 @@
 package com.unriviel.api.model.metadata;
 
+import com.unriviel.api.enums.ReviewStatus;
+import com.unriviel.api.model.User;
 import com.unriviel.api.model.audit.DateAudit;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.Data;
@@ -8,10 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +56,12 @@ public class VideoMetaData extends DateAudit implements Serializable {
      @ElementCollection
      private List<Integer> contentUses = new ArrayList<>();
      private boolean isApproved;
-     private String userEmail;
      private boolean isUploaded;
+     @ManyToOne
+     private User uploader;
+     @ManyToOne
+     private User reviewer;
+     @Enumerated(value = EnumType.STRING)
+     private ReviewStatus reviewStatus;
+     private boolean isUnassigned;
 }

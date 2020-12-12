@@ -12,9 +12,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class JwtTokenValidatorTest {
 
@@ -80,6 +78,6 @@ public class JwtTokenValidatorTest {
     }
 
     private OnUserLogoutSuccessEvent stubLogoutEvent(String email, String token) {
-        return new OnUserLogoutSuccessEvent(email, token, null);
+        return new OnUserLogoutSuccessEvent(email, token);
     }
 }

@@ -39,14 +39,14 @@ class DbInit {
 
 //        userRepository.deleteAll();
 //        roleRepository.deleteAll();
-        if (!roleRepository.findByRole(RoleName.ROLE_USER).isPresent()){
+        if (roleRepository.findByRole(RoleName.ROLE_USER).isEmpty()){
             roleService.create(new Role(RoleName.ROLE_USER));
         }
-        if(!roleRepository.findByRole(RoleName.ROLE_ADMIN).isPresent()) {
+        if(roleRepository.findByRole(RoleName.ROLE_ADMIN).isEmpty()) {
             roleService.create(new Role(RoleName.ROLE_ADMIN));
         }
         Optional<User> byEmail = userRepository.findByEmail("admin@gmail.com");
-        if (!byEmail.isPresent()){
+        if (byEmail.isEmpty()){
             User user= new User();
             user.setEmail("admin@gmail.com");
             user.setUsername("admin");

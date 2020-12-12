@@ -12,9 +12,7 @@ import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LoggedOutJwtTokenCacheTest {
 
@@ -52,6 +50,6 @@ public class LoggedOutJwtTokenCacheTest {
     }
 
     private OnUserLogoutSuccessEvent stubLogoutEvent(String email, String token) {
-        return new OnUserLogoutSuccessEvent(email, token, null);
+        return new OnUserLogoutSuccessEvent(email, token);
     }
 }

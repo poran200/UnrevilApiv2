@@ -65,13 +65,13 @@ public class User extends DateAudit {
     }
 
     public void addRole(Role role) {
-        if (this.roles == null){
-           this.roles = new HashSet<>();
-           roles.add(role);
+        if (roles== null){
+            this.roles = new HashSet<>();
         }
         roles.add(role);
-
+        role.getUserList().add(this);
     }
+
 
     public String getFullName() {
         return fullName;

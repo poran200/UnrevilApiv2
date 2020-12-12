@@ -18,10 +18,12 @@ import org.springframework.stereotype.Service;
 public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     private final VideoMetaDataRepository videoMetaDataRepository;
     private final ModelMapper modelMapper;
+    private final UserService userService;
 
-    public VideoMetaDataServiceImpl(VideoMetaDataRepository videoMetaDataRepository, ModelMapper modelMapper) {
+    public VideoMetaDataServiceImpl(VideoMetaDataRepository videoMetaDataRepository, ModelMapper modelMapper, UserService userService) {
         this.videoMetaDataRepository = videoMetaDataRepository;
         this.modelMapper = modelMapper;
+        this.userService = userService;
     }
 
 
@@ -53,7 +55,9 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     public Response findByVideoId(String videoId) {
         var optionalVideoMetaData = videoMetaDataRepository.findById(videoId);
         if (optionalVideoMetaData.isPresent()){
-            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"Video meta data  found",optionalVideoMetaData.get());
+            var metadataDto = modelMapper.map(optionalVideoMetaData.get(), VideoMetadataDto.class);
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
+                    "Video meta data  found",metadataDto);
         }
         return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
                 "Video metadata not found [id]="+videoId);
@@ -61,7 +65,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
 
     @Override
     public Response finByUserEmail(String email, Pageable pageable) {
-        var page = videoMetaDataRepository.findAllByUserEmail(email, pageable);
+        var page = videoMetaDataRepository.findAllByUploaderEmail(email, pageable);
         if (page.hasContent()){
             return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
         }
@@ -75,17 +79,19 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
 
     @Override
     public void saveVideoStatus(VideoResponse response) {
+        var optionalUser = userService.findByEmail(response.getUserEmail());
         VideoMetaData metaData = new VideoMetaData();
         metaData.setVideoId(response.getVideoId());
         metaData.setVideoUrl(response.getUrl());
         metaData.setUploaded(response.isUploaded());
+        metaData.setUploader(optionalUser.get());
         var videoMetaData = videoMetaDataRepository.findById(response.getVideoId());
         if (videoMetaData.isPresent()){
             var data = videoMetaData.get();
             data.setVideoId(response.getVideoId());
             data.setVideoUrl(response.getUrl());
             data.setUploaded(response.isUploaded());
-            data.setUserEmail(response.getUserEmail());
+            data.setUploader(optionalUser.get());
             videoMetaDataRepository.save(data);
         }else {
             videoMetaDataRepository.save(metaData);

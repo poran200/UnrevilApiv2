@@ -3,15 +3,7 @@ package com.unriviel.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,9 +23,9 @@ public class Role {
     @NaturalId
     private RoleName role;
 
-//    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-//    @JsonIgnore
-//    private Set<User> userList = new HashSet<>();
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<User> userList = new HashSet<>();
 
     public Role(RoleName role) {
         this.role = role;
@@ -46,7 +38,13 @@ public class Role {
     public boolean isAdminRole() {
         return null != this && this.role.equals(RoleName.ROLE_ADMIN);
     }
+    public boolean isInfluencerRole(){
+        return null != this && this.role.equals(RoleName.ROLE_INFLUENCER);
+    }
 
+    public boolean isReviewerRole(){
+        return null != this && this.role.equals(RoleName.ROLE_INFLUENCER);
+    }
     public Long getId() {
         return id;
     }
@@ -61,5 +59,9 @@ public class Role {
 
     public void setRole(RoleName role) {
         this.role = role;
+    }
+
+    public Set<User> getUserList() {
+        return userList;
     }
 }
