@@ -1,7 +1,7 @@
 package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.Response;
-import com.unriviel.api.dto.VideoMetadataDto;
+import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.repository.VideoMetaDataRepository;
 import com.unriviel.api.service.ReviewAssignService;
 import com.unriviel.api.util.ResponseBuilder;
@@ -30,7 +30,7 @@ public class ReviewAssignServiceImpl implements ReviewAssignService {
                 metaData.get().setReviewer(reviewer.get());
                 metaData.get().setUnassigned(true);
                 var videoMetaData = videoMetaDataRepository.save(metaData.get());
-                var metadataDto = modelMapper.map(videoMetaData, VideoMetadataDto.class);
+                var metadataDto = modelMapper.map(videoMetaData, VideoMetadataRequestDto.class);
                 return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"video assign successfully!",metadataDto);
             }
             return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"Reviewer not found! [email]="+reviewerEmail);

@@ -1,6 +1,6 @@
 package com.unriviel.api.model;
 
-import com.unriviel.api.dto.VideoMetadataDto;
+import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.model.metadata.Audio;
 import com.unriviel.api.model.metadata.Coordinate;
 import com.unriviel.api.model.metadata.Images;
@@ -21,7 +21,7 @@ public class JsonTest {
 
     @Autowired
     DtoToModel dtoToModel;
-    VideoMetadataDto dto = new VideoMetadataDto();
+    VideoMetadataRequestDto dto = new VideoMetadataRequestDto();
 
     @Test
    public void test(){

@@ -17,8 +17,8 @@ class ReviewQsAnsTest {
         var tags = new ArrayList<ReviewTag>();
         tags.add(new ReviewTag("tag",YES));
         var reviewQsAns = new ReviewQsAns();
-        reviewQsAns.setIsDescriptionSuitable(null);
-        reviewQsAns.setIsTitleCorrect(YES);
+        reviewQsAns.setIsDescriptionSuitable(YES);
+        reviewQsAns.setIsTitleCorrect(null);
         reviewQsAns.setReviewLocations(locations);
         reviewQsAns.setReviewTags(tags);
         reviewQsAns.setReviewImages(images);

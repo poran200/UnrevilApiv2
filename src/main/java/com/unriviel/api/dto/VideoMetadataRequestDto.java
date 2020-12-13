@@ -7,13 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class VideoMetadataDto {
+public class VideoMetadataRequestDto {
     @NotEmpty(message = "Video id can not  empty")
     private String videoId;
     private String videoName;
@@ -27,7 +26,7 @@ public class VideoMetadataDto {
 
     private String title;
     private String description;
-    @Size(min=1, max=3,message = "Minimum 1 image attach on video and Max 3")
+//    @Size(min=1, max=3,message = "Minimum 1 image attach on video and Max 3")
     private List<Images> images;
     private String thumbnailUrl;
     private boolean isAdultContent;
@@ -42,7 +41,5 @@ public class VideoMetadataDto {
 
     private List<Integer> contentUses = new ArrayList<>();
     private boolean isApproved;
-    @NotEmpty(message = "Must be given the influencer email")
-    private String userEmail;
 
 }

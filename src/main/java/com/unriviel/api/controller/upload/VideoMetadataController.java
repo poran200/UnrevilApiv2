@@ -1,7 +1,7 @@
 package com.unriviel.api.controller.upload;
 
 import com.unriviel.api.annotation.APiController;
-import com.unriviel.api.dto.VideoMetadataDto;
+import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.service.VideoMetaDataService;
 import com.unriviel.api.util.UrlConstrains;
 import org.springframework.data.domain.PageRequest;
@@ -23,13 +23,13 @@ public class VideoMetadataController {
         return ResponseEntity.status((int) metadata.getStatusCode()).body(metadata);
     }
 
-    @PostMapping(UrlConstrains.VideoMetaDataManagement.CREATE)
-    public ResponseEntity<Object> create(@RequestBody(required = true) VideoMetadataDto dto ){
-        var response = videoMetaDataService.save(dto);
-        return ResponseEntity.status((int) response.getStatusCode()).body(response);
-    }
+//    @PostMapping(UrlConstrains.VideoMetaDataManagement.CREATE)
+//    public ResponseEntity<Object> create(@RequestBody(required = true) VideoMetadataRequestDto dto ){
+//        var response = videoMetaDataService.save(dto);
+//        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+//    }
     @PutMapping(UrlConstrains.VideoMetaDataManagement.UPDATE)
-    public ResponseEntity<Object> update(@RequestBody(required = true) VideoMetadataDto dto,
+    public ResponseEntity<Object> update(@RequestBody(required = true) VideoMetadataRequestDto dto,
                                          @PathVariable(required = true) String videoId
                                          ){
         var response = videoMetaDataService.update(videoId,dto);

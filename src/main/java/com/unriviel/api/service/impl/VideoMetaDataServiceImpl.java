@@ -1,7 +1,7 @@
 package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.Response;
-import com.unriviel.api.dto.VideoMetadataDto;
+import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.dto.VideoResponse;
 import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.User;
@@ -32,7 +32,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
 
 
     @Override
-    public Response save(VideoMetadataDto metadataDto) {
+    public Response save(VideoMetadataRequestDto metadataDto) {
         var videoMetaData = modelMapper.map(metadataDto, VideoMetaData.class);
 //        var existsById = videoMetaDataRepository.existsById(videoMetaData.getVideoId());
 //        if (existsById) {
@@ -59,7 +59,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     public Response findByVideoId(String videoId) {
         var optionalVideoMetaData = videoMetaDataRepository.findById(videoId);
         if (optionalVideoMetaData.isPresent()){
-            var metadataDto = modelMapper.map(optionalVideoMetaData.get(), VideoMetadataDto.class);
+            var metadataDto = modelMapper.map(optionalVideoMetaData.get(), VideoMetadataRequestDto.class);
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
                     "Video meta data  found",metadataDto);
         }
@@ -69,7 +69,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
 
     @Override
     public Response finByUserEmail(String email, Pageable pageable) {
-        var page = videoMetaDataRepository.findAllByUploaderEmail(email, pageable);
+        var page = videoMetaDataRepository.findAllByUploaderEmail(email, pageable).map(metaData -> modelMapper.map(metaData,VideoMetadataRequestDto.class));
         if (page.hasContent()){
             return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
         }
@@ -93,7 +93,9 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         metaData.setVideoUrl(response.getUrl());
         metaData.setUploaded(response.isUploaded());
         userOptional.ifPresent(metaData::setUploader);
-        metaData.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
+        if (response.isUploaded()) {
+            metaData.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
+        }
         var videoMetaData = videoMetaDataRepository.findById(response.getVideoId());
         if (videoMetaData.isPresent()){
             var data = videoMetaData.get();
@@ -101,7 +103,10 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
             data.setVideoUrl(response.getUrl());
             data.setUploaded(response.isUploaded());
             userOptional.ifPresent(data::setUploader);
-            data.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
+            if (response.isUploaded()){
+                data.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
+            }
+
             videoMetaDataRepository.save(data);
         }else {
             videoMetaDataRepository.save(metaData);
@@ -114,15 +119,24 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     }
 
     @Override
-    public Response update(String videoId, VideoMetadataDto videoMetadataDto) {
-        var metaData = modelMapper.map(videoMetadataDto, VideoMetaData.class);
+    public Response update(String videoId, VideoMetadataRequestDto videoMetadataRequestDto) {
+        var metaData = modelMapper.map(videoMetadataRequestDto, VideoMetaData.class);
         var optionalVideoMetaData = videoMetaDataRepository.findById(videoId);
         if (optionalVideoMetaData.isPresent()){
-            var videoId1 = optionalVideoMetaData.get().getVideoId();
-            metaData.setVideoId(videoId1);
+            var updated = optionalVideoMetaData.get();
+             metaData.setVideoUrl(updated.getVideoUrl());
+             metaData.setApproved(updated.isApproved());
+             metaData.setUploaded(updated.isUploaded());
+             metaData.setUploader(updated.getUploader());
+             metaData.setReviewer(updated.getReviewer());
+             metaData.setReviewStatus(updated.getReviewStatus());
+             metaData.setUnassigned(updated.isUnassigned());
+             metaData.setApprovedAt(updated.getApprovedAt());
+             metaData.setReviewQsAns(updated.getReviewQsAns());
+
             var save = videoMetaDataRepository.save(metaData);
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
-                    "Updated",modelMapper.map(save,VideoMetadataDto.class));
+                    "Updated",modelMapper.map(save, VideoMetadataRequestDto.class));
         }
         return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"video not found");
     }

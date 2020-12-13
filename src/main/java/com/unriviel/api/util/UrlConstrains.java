@@ -63,7 +63,7 @@ public final class  UrlConstrains {
         public static  final String CREATE ="/";
         public static  final String UPDATE ="/{videoId}";
         public static  final String GET_BY_ID ="/{id}";
-        public static  final String GET_BY_EMAIL ="/{email}";
+        public static  final String GET_BY_EMAIL ="video/{email}";
     }
 
     public static final class VideoUpload {

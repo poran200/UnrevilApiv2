@@ -1,11 +1,14 @@
 package com.unriviel.api.model.metadata.review;
 
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +17,12 @@ import static com.unriviel.api.model.metadata.review.AnsStatus.YES;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@EqualsAndHashCode
+@TypeDef(name = "json",typeClass = JsonStringType.class)
 public class ReviewQsAns {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Enumerated(value = EnumType.STRING)
     private AnsStatus isTitleCorrect;
@@ -22,9 +30,17 @@ public class ReviewQsAns {
     private AnsStatus isDescriptionSuitable;
     @Enumerated(value = EnumType.STRING)
     private AnsStatus isAdultContent;
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
     List<ReviewImage> reviewImages = new ArrayList<>();
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
     List<ReviewTag> reviewTags = new ArrayList<>();
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
     List<ReviewLocation> reviewLocations = new ArrayList<>() ;
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
     List<Integer> audioOptionList = new ArrayList<>();
     String comment;
 

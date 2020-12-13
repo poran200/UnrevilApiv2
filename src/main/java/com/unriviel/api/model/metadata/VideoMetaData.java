@@ -3,6 +3,7 @@ package com.unriviel.api.model.metadata;
 import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.User;
 import com.unriviel.api.model.audit.DateAudit;
+import com.unriviel.api.model.metadata.review.ReviewQsAns;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -66,4 +67,19 @@ public class VideoMetaData extends DateAudit implements Serializable {
      private boolean isUnassigned;
      @Temporal(TemporalType.DATE)
      private  java.util.Date approvedAt;
+     @OneToOne
+     private ReviewQsAns reviewQsAns;
+
+     public void reviewStatusSet(){
+          if (this.reviewQsAns != null && this.reviewQsAns.onReviewOnProcessIsRunning()){
+              this.setReviewStatus(ReviewStatus.IN_REVIEW);
+          }
+
+     }
+     public void setApprovedStatus(){
+          if(this.reviewQsAns !=null && this.reviewQsAns.isApproved()){
+             this.setApproved(true);
+             this.setReviewStatus(ReviewStatus.REVIEWED);
+          }
+     }
 }
