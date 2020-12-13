@@ -1,5 +1,6 @@
 package com.unriviel.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.unriviel.api.model.metadata.Audio;
 import com.unriviel.api.model.metadata.Images;
 import com.unriviel.api.model.metadata.Location;
@@ -29,11 +30,12 @@ public class VideoMetadataRequestDto {
 //    @Size(min=1, max=3,message = "Minimum 1 image attach on video and Max 3")
     private List<Images> images;
     private String thumbnailUrl;
+    private String cropThumbnailUrl;
     private boolean isAdultContent;
     private boolean isIncludePromotion;
     private String recodedYear;
 
-    List<Location> locations;
+   private List<Location> locations;
 
     private List<String> tags = new ArrayList<>();
 
@@ -41,5 +43,7 @@ public class VideoMetadataRequestDto {
 
     private List<Integer> contentUses = new ArrayList<>();
     private boolean isApproved;
+    @JsonProperty(value = "uploadDate")
+    private String createdAt;
 
 }

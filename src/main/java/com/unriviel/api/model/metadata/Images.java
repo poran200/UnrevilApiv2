@@ -9,10 +9,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Images implements Serializable {
     String  url;
+    String cropImageUrl;
     Coordinate first;
     Coordinate second;
     Coordinate third;
     Coordinate fourth;
-
-
 }

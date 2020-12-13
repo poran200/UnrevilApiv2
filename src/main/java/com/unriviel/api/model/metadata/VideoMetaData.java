@@ -41,6 +41,7 @@ public class VideoMetaData extends DateAudit implements Serializable {
      private List<Images> images;
 
      private String thumbnailUrl;
+     private String cropThumbnailUrl;
      private boolean isAdultContent;
      private boolean isIncludePromotion;
      private String recodedYear;
