@@ -3,6 +3,8 @@ package com.unriviel.api.service.impl;
 import com.unriviel.api.dto.Response;
 import com.unriviel.api.dto.VideoMetadataDto;
 import com.unriviel.api.dto.VideoResponse;
+import com.unriviel.api.enums.ReviewStatus;
+import com.unriviel.api.model.User;
 import com.unriviel.api.model.metadata.VideoMetaData;
 import com.unriviel.api.repository.VideoMetaDataRepository;
 import com.unriviel.api.service.VideoMetaDataService;
@@ -12,6 +14,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -79,19 +83,25 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
 
     @Override
     public void saveVideoStatus(VideoResponse response) {
-        var optionalUser = userService.findByEmail(response.getUserEmail());
+        Optional<User> userOptional = Optional.empty();
+        if (response.getUserEmail() != null){
+            userOptional=  userService.findByEmail(response.getUserEmail());
+        }
+
         VideoMetaData metaData = new VideoMetaData();
         metaData.setVideoId(response.getVideoId());
         metaData.setVideoUrl(response.getUrl());
         metaData.setUploaded(response.isUploaded());
-        metaData.setUploader(optionalUser.get());
+        userOptional.ifPresent(metaData::setUploader);
+        metaData.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
         var videoMetaData = videoMetaDataRepository.findById(response.getVideoId());
         if (videoMetaData.isPresent()){
             var data = videoMetaData.get();
             data.setVideoId(response.getVideoId());
             data.setVideoUrl(response.getUrl());
             data.setUploaded(response.isUploaded());
-            data.setUploader(optionalUser.get());
+            userOptional.ifPresent(data::setUploader);
+            data.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
             videoMetaDataRepository.save(data);
         }else {
             videoMetaDataRepository.save(metaData);

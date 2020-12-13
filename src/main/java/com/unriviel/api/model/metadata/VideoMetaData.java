@@ -64,4 +64,6 @@ public class VideoMetaData extends DateAudit implements Serializable {
      @Enumerated(value = EnumType.STRING)
      private ReviewStatus reviewStatus;
      private boolean isUnassigned;
+     @Temporal(TemporalType.DATE)
+     private  java.util.Date approvedAt;
 }
