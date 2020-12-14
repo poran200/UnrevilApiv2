@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.unriviel.api.model.metadata.Audio;
 import com.unriviel.api.model.metadata.Images;
 import com.unriviel.api.model.metadata.Location;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class VideoMetadataRequestDto {
     @NotEmpty(message = "Video id can not  empty")
     private String videoId;

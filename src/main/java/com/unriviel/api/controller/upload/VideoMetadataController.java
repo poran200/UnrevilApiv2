@@ -29,7 +29,7 @@ public class VideoMetadataController {
 //        return ResponseEntity.status((int) response.getStatusCode()).body(response);
 //    }
     @PutMapping(UrlConstrains.VideoMetaDataManagement.UPDATE)
-    public ResponseEntity<Object> update(@RequestBody(required = true) VideoMetadataRequestDto dto,
+    public ResponseEntity<Object> update(@RequestBody(required = true)  VideoMetadataRequestDto dto,
                                          @PathVariable(required = true) String videoId
                                          ){
         var response = videoMetaDataService.update(videoId,dto);
