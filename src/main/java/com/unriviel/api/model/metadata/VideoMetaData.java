@@ -1,5 +1,6 @@
 package com.unriviel.api.model.metadata;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.User;
 import com.unriviel.api.model.audit.DateAudit;
@@ -14,6 +15,7 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 @Data
 @NoArgsConstructor
@@ -57,30 +59,43 @@ public class VideoMetaData extends DateAudit implements Serializable {
      private Audio audio;
      @ElementCollection
      private List<Integer> contentUses = new ArrayList<>();
-     private boolean isApproved;
+//     private boolean isApproved;
+    @Enumerated(value = EnumType.STRING)
+    private ReviewStatus reviewStatus;
      private boolean isUploaded;
      @ManyToOne
+     @JsonIgnoreProperties(value = {"password","active","roles","isEmailVerified","totalUpload","totalApproved","totalAssigned","totalReviewed"},allowGetters = false)
      private User uploader;
      @ManyToOne
+     @JsonIgnoreProperties(value = {"password","active","roles","isEmailVerified","totalUpload","totalApproved","totalAssigned","totalReviewed"},allowGetters = false)
      private User reviewer;
      @Enumerated(value = EnumType.STRING)
-     private ReviewStatus reviewStatus;
-     private boolean isUnassigned;
+     private ReviewStatus reviewProcess;
+     private boolean isAssigned;
      @Temporal(TemporalType.DATE)
      private  java.util.Date approvedAt;
+     @Temporal(TemporalType.DATE)
+     private  java.util.Date assignedAt;
      @OneToOne
      private ReviewQsAns reviewQsAns;
 
      public void reviewStatusSet(){
           if (this.reviewQsAns != null && this.reviewQsAns.onReviewOnProcessIsRunning()){
-              this.setReviewStatus(ReviewStatus.IN_REVIEW);
+              this.setReviewProcess(ReviewStatus.IN_REVIEW);
           }
 
      }
      public void setApprovedStatus(){
-          if(this.reviewQsAns !=null && this.reviewQsAns.isApproved()){
-             this.setApproved(true);
-             this.setReviewStatus(ReviewStatus.REVIEWED);
+          if(this.reviewQsAns !=null  && !this.reviewQsAns.onReviewOnProcessIsRunning()){
+             if (this.reviewQsAns.isApproved()){
+                 this.setReviewStatus(ReviewStatus.APPROVED);
+             }else {
+                 this.setReviewStatus(ReviewStatus.REJECTED);
+             }
+              this.setApprovedAt(new Date());
+              this.setReviewProcess(ReviewStatus.REVIEWED);
+
           }
+
      }
 }

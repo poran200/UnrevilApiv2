@@ -74,4 +74,11 @@ public final class  UrlConstrains {
 
         public static final String REUPLOAD = "/reUpload/{videoId}/{userEmail}";
     }
+
+    public static final class ReviewManagement {
+        public static final String ROOT = API+VERSION+"/review";
+
+        public static final String ASSIGN = "/assign";
+        public static final String VIDEOS = "/videos/{userEmail}";
+    }
 }

@@ -37,7 +37,7 @@ public class VideoMetadataRequestDto {
     private boolean isIncludePromotion;
     private String recodedYear;
 
-   private List<Location> locations;
+    private List<Location> locations;
 
     private List<String> tags = new ArrayList<>();
 

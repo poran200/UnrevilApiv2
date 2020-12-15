@@ -1,5 +1,6 @@
 package com.unriviel.api.model.metadata.review;
 
+import com.unriviel.api.model.metadata.VideoMetaData;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -17,8 +18,8 @@ class ReviewQsAnsTest {
         var tags = new ArrayList<ReviewTag>();
         tags.add(new ReviewTag("tag",YES));
         var reviewQsAns = new ReviewQsAns();
-        reviewQsAns.setIsDescriptionSuitable(YES);
-        reviewQsAns.setIsTitleCorrect(null);
+        reviewQsAns.setIsDescriptionSuitable(null);
+        reviewQsAns.setIsTitleCorrect(YES);
         reviewQsAns.setReviewLocations(locations);
         reviewQsAns.setReviewTags(tags);
         reviewQsAns.setReviewImages(images);
@@ -26,6 +27,12 @@ class ReviewQsAnsTest {
         var approved = reviewQsAns.isApproved();
         System.out.println("approved = " + approved);
         System.out.println("reviewOnProcessIsRunning = " + reviewOnProcess);
+        VideoMetaData videoMetaData  = new VideoMetaData();
+        videoMetaData.setReviewQsAns(reviewQsAns);
+        videoMetaData.reviewStatusSet();
+        videoMetaData.setApprovedStatus();
+        System.out.println("video process ="+ videoMetaData.getReviewProcess().toString());
+        System.out.println("video is approved="+ videoMetaData.getReviewStatus());
 
     }
 }

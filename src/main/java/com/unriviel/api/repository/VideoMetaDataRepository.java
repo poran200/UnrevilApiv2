@@ -1,5 +1,6 @@
 package com.unriviel.api.repository;
 
+import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.metadata.VideoMetaData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,13 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,String> {
 
-//    Page<VideoMetaData> findAllByUserEmailAndOrderByCreatedAtDesc(String userEmail, Pageable pageable);
 
-//    Page<VideoMetaData> findAllByUserEmailAndOrderByCreatedAt(String eamil, Pageable pageable);
-      Page<VideoMetaData> findAllByUploaderEmail(String email, Pageable pageable);
-//      List<VideoMetaData>findAllTagsStartingWith(String tag);
+      Page<VideoMetaData> findAllByUploaderEmailOrderByCreatedAtDesc(String email, Pageable pageable);
       Page<VideoMetaData>findAllByTagsStartingWith(String tag,Pageable pageable);
-//      @Query("select VideoMetaData.tags from VideoMetaData")
-//      List<String>allTag();
-//      Boolean existsByVideoIdAndUploadedIsTrue(String videoId);
+      Page<VideoMetaData>findAllByReviewerEmailAndReviewProcessOrderByCreatedAtDesc(String reviewerEmail, ReviewStatus reviewStatus,Pageable pageable);
+//      Page<VideoMetaData>findAllByReviewerEmailAndOrderByCreatedAtDesc(String reviewerEmail,Pageable pageable);
+      Page<VideoMetaData>findAllByReviewerEmailOrderByCreatedAtDesc(String reviewerEmail,Pageable pageable);
+
 }

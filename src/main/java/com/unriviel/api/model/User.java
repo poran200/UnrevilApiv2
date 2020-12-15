@@ -48,6 +48,11 @@ public class User extends DateAudit {
 
     @Column(name = "IS_EMAIL_VERIFIED", nullable = false)
     private Boolean isEmailVerified;
+    private int  totalUpload;
+    private  int totalApproved;
+
+    private  int totalAssigned;
+    private int totalReviewed;
 
     public User() {
         super();
@@ -62,6 +67,34 @@ public class User extends DateAudit {
         active = user.getActive();
         roles = user.getRoles();
         isEmailVerified = user.getEmailVerified();
+    }
+
+    public  void increaseUpload(){
+        this.totalUpload = this.getTotalUpload()+1;
+    }
+    public  void increaseApproved(){
+        this.totalApproved = this.getTotalApproved()+1;
+    }
+    public  void increaseAssigned(){
+        this.totalAssigned = this.getTotalAssigned()+1;
+    }
+    public  void increaseReviewed(){
+        this.totalReviewed = this.getTotalReviewed()+1;
+    }
+    public int getTotalUpload() {
+        return totalUpload;
+    }
+
+    public int getTotalApproved() {
+        return totalApproved;
+    }
+
+    public int getTotalAssigned() {
+        return totalAssigned;
+    }
+
+    public int getTotalReviewed() {
+        return totalReviewed;
     }
 
     public void addRole(Role role) {

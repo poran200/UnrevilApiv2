@@ -69,7 +69,8 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
 
     @Override
     public Response finByUserEmail(String email, Pageable pageable) {
-        var page = videoMetaDataRepository.findAllByUploaderEmail(email, pageable).map(metaData -> modelMapper.map(metaData,VideoMetadataRequestDto.class));
+        var page = videoMetaDataRepository.findAllByUploaderEmailOrderByCreatedAtDesc(email, pageable)
+                .map(metaData -> modelMapper.map(metaData,VideoMetadataRequestDto.class));
         if (page.hasContent()){
             return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
         }
@@ -87,14 +88,14 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         if (response.getUserEmail() != null){
             userOptional=  userService.findByEmail(response.getUserEmail());
         }
-
         VideoMetaData metaData = new VideoMetaData();
         metaData.setVideoId(response.getVideoId());
         metaData.setVideoUrl(response.getUrl());
         metaData.setUploaded(response.isUploaded());
         userOptional.ifPresent(metaData::setUploader);
         if (response.isUploaded()) {
-            metaData.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
+            userOptional.ifPresent(User::increaseUpload);
+            metaData.setReviewProcess(ReviewStatus.TO_BE_REVIEWED);
         }
         var videoMetaData = videoMetaDataRepository.findById(response.getVideoId());
         if (videoMetaData.isPresent()){
@@ -104,13 +105,15 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
             data.setUploaded(response.isUploaded());
             userOptional.ifPresent(data::setUploader);
             if (response.isUploaded()){
-                data.setReviewStatus(ReviewStatus.TO_BE_REVIEWED);
+                userOptional.ifPresent(User::increaseUpload);
+                data.setReviewProcess(ReviewStatus.TO_BE_REVIEWED);
             }
 
             videoMetaDataRepository.save(data);
         }else {
             videoMetaDataRepository.save(metaData);
         }
+        userOptional.ifPresent(userService::save);
     }
 
     @Override
@@ -125,13 +128,14 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         if (optionalVideoMetaData.isPresent()){
             var updated = optionalVideoMetaData.get();
              metaData.setVideoUrl(updated.getVideoUrl());
-             metaData.setApproved(updated.isApproved());
+             metaData.setReviewStatus(updated.getReviewStatus());
              metaData.setUploaded(updated.isUploaded());
              metaData.setUploader(updated.getUploader());
              metaData.setReviewer(updated.getReviewer());
-             metaData.setReviewStatus(updated.getReviewStatus());
-             metaData.setUnassigned(updated.isUnassigned());
+             metaData.setReviewProcess(updated.getReviewProcess());
+             metaData.setAssigned(updated.isAssigned());
              metaData.setApprovedAt(updated.getApprovedAt());
+             metaData.setAssignedAt(updated.getAssignedAt());
              metaData.setReviewQsAns(updated.getReviewQsAns());
 
             var save = videoMetaDataRepository.save(metaData);
