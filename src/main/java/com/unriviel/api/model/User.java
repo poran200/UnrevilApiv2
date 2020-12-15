@@ -104,7 +104,10 @@ public class User extends DateAudit {
         roles.add(role);
         role.getUserList().add(this);
     }
-
+    public  boolean isAdmin(){
+        var optional = this.roles.stream().filter(Role::isAdminRole).findFirst();
+        return optional.isPresent();
+    }
 
     public String getFullName() {
         return fullName;

@@ -1,6 +1,7 @@
 package com.unriviel.api.controller;
 
 import com.unriviel.api.annotation.APiController;
+import com.unriviel.api.dto.MetaDataFilterRequest;
 import com.unriviel.api.dto.Response;
 import com.unriviel.api.dto.ReviewAssignRequest;
 import com.unriviel.api.service.ReviewAssignService;
@@ -35,7 +36,7 @@ public class ReviewController {
                                                       @RequestParam(defaultValue = "0") Integer pageNumber,
                                                       @RequestParam(defaultValue = "20") Integer pageSize){
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = getpagAble(pageNumber,pageSize);
         Response response;
          if (userEmail.equals("admin@gmail.com")){
              response = reviewService.findAll(pageable);
@@ -45,4 +46,30 @@ public class ReviewController {
          return ResponseEntity.status((int) response.getStatusCode()).body(response);
 
     }
+    @PostMapping(UrlConstrains.ReviewManagement.VIDEOSPOST)
+    public ResponseEntity<Object> getAllVideoMetadata(@Valid @RequestBody(required = false) MetaDataFilterRequest request,
+                                                      @RequestParam(defaultValue = "0") Integer pageNumber,
+                                                      @RequestParam(defaultValue = "20") Integer pageSize){
+
+        Pageable pageable = getpagAble(pageNumber, pageSize);
+        Response response = null;
+        if (request == null){
+            response = reviewService.findAll(pageable);
+         } else {
+            if (request.getAsinine() != null) {
+                response = reviewService.findAllByReviewerEmail(request.getAsinine(), pageable);
+            }
+            if (request.getUploader() != null) {
+                response = reviewService.finAllByUploaderEmail(request.getUploader(), pageable);
+            }
+         }
+        assert response != null;
+        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+
+    }
+
+    private Pageable getpagAble(@RequestParam(defaultValue = "0") Integer pageNumber, @RequestParam(defaultValue = "20") Integer pageSize) {
+        return PageRequest.of(pageNumber, pageSize);
+    }
+
 }

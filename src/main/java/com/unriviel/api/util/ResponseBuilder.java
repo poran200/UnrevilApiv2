@@ -61,6 +61,16 @@ public final class ResponseBuilder {
                 .timestamp(new Date().getTime())
                 .build();
     }
+    public static Response getSuccessResponsePageWithReviewCount(HttpStatus status, String message, Page<?> page,Object reviewStatus){
+        return Response.builder()
+                .massage(message)
+                .status(status.getReasonPhrase())
+                .statusCode( status.value())
+                .page(page)
+                .timestamp(new Date().getTime())
+                .reviewStatusCount(reviewStatus)
+                .build();
+    }
     public static Response getSuccessResponseList(HttpStatus status, String message, List<?> contentList, int numberOfElement){
         return Response.builder()
                 .massage(message)

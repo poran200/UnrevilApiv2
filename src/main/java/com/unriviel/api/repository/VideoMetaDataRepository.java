@@ -11,10 +11,14 @@ import org.springframework.stereotype.Repository;
 public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,String> {
 
 
-      Page<VideoMetaData> findAllByUploaderEmailOrderByCreatedAtDesc(String email, Pageable pageable);
+      Page<VideoMetaData>findAllByUploaderEmailOrderByCreatedAtDesc(String email, Pageable pageable);
       Page<VideoMetaData>findAllByTagsStartingWith(String tag,Pageable pageable);
       Page<VideoMetaData>findAllByReviewerEmailAndReviewProcessOrderByCreatedAtDesc(String reviewerEmail, ReviewStatus reviewStatus,Pageable pageable);
 //      Page<VideoMetaData>findAllByReviewerEmailAndOrderByCreatedAtDesc(String reviewerEmail,Pageable pageable);
       Page<VideoMetaData>findAllByReviewerEmailOrderByCreatedAtDesc(String reviewerEmail,Pageable pageable);
-
+//      @Query(value = "select  * from VideoMetaData where VideoMetaData .uploader = :email")
+//      Page<VideoMetaData>findAllFilter(String reviewerEmail,Pageable pageable);
+      Integer countAllByReviewProcessAndReviewerEmail(ReviewStatus reviewStatus,String reviewerEmail);
+      Integer countAllByReviewProcessAndUploaderEmail(ReviewStatus reviewStatus,String reviewerEmail);
+      Integer countAllByReviewProcess(ReviewStatus reviewProcess);
 }

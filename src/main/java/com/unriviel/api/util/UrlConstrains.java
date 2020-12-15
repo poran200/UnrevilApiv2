@@ -80,5 +80,6 @@ public final class  UrlConstrains {
 
         public static final String ASSIGN = "/assign";
         public static final String VIDEOS = "/videos/{userEmail}";
+        public static final String VIDEOSPOST = "/videos";
     }
 }

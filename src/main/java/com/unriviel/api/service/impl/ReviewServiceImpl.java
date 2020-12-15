@@ -1,6 +1,7 @@
 package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.Response;
+import com.unriviel.api.dto.ReviewStatusCount;
 import com.unriviel.api.dto.VideoMetadataResponseDto;
 import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.User;
@@ -9,13 +10,13 @@ import com.unriviel.api.model.metadata.review.ReviewQsAns;
 import com.unriviel.api.repository.ReviewQsAnsRepository;
 import com.unriviel.api.repository.VideoMetaDataRepository;
 import com.unriviel.api.service.ReviewService;
-import com.unriviel.api.util.ResponseBuilder;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import static com.unriviel.api.enums.ReviewStatus.APPROVED;
+import static com.unriviel.api.enums.ReviewStatus.*;
+import static com.unriviel.api.util.ResponseBuilder.*;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -39,23 +40,25 @@ public class ReviewServiceImpl implements ReviewService {
                 var review = ansRepository.save(reviewQsAns);
                 var saveMetadata = setupReviewData(videoMetaData, review);
                 var responseDto = modelMapper.map(saveMetadata, VideoMetadataResponseDto.class);
-                return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"Review started",responseDto);
+                return getSuccessResponse(HttpStatus.OK,"Review started",responseDto);
             }
             var qsAns = videoMetaData.getReviewQsAns();
             reviewQsAns.setId(qsAns.getId());
             var review = ansRepository.save(reviewQsAns);
             var saveMetadata = setupReviewData(videoMetaData, review);
             var responseDto = modelMapper.map(saveMetadata, VideoMetadataResponseDto.class);
-           return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"Updated",responseDto);
+           return getSuccessResponse(HttpStatus.OK,"Updated",responseDto);
         }
-      return   ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"Meta data not found");
+      return   getFailureResponse(HttpStatus.NOT_FOUND,"Meta data not found");
     }
 
     @Override
     public Response findAll(Pageable pageable) {
         var page = metaDataRepository.findAll(pageable)
                 .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
-        return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
+
+        return getSuccessResponsePageWithReviewCount(HttpStatus.OK,
+                        "Videos",page,getAdminReviewStatsCount());
     }
 
     @Override
@@ -63,7 +66,18 @@ public class ReviewServiceImpl implements ReviewService {
         var videoMetaDataPage = metaDataRepository.findAllByReviewerEmailOrderByCreatedAtDesc(email, pageable)
                 .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
 
-        return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",videoMetaDataPage);
+        return getSuccessResponsePageWithReviewCount(HttpStatus.OK,
+                        "Videos",videoMetaDataPage,gerReviewerReviewStatsCount(email));
+    }
+
+    @Override
+    public Response finAllByUploaderEmail(String email, Pageable pageable) {
+        var videoMetaDataPage = metaDataRepository.findAllByUploaderEmailOrderByCreatedAtDesc(email, pageable)
+                .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
+
+        return getSuccessResponsePageWithReviewCount(HttpStatus.OK,
+                        "Videos",videoMetaDataPage,gerUploaderReviewStatsCount(email));
+
     }
 
     private VideoMetaData setupReviewData(VideoMetaData videoMetaData, ReviewQsAns review) {
@@ -92,5 +106,24 @@ public class ReviewServiceImpl implements ReviewService {
               userService.save(user);
         }
     }
+    private ReviewStatusCount getAdminReviewStatsCount(){
+        var tobereviewed = metaDataRepository.countAllByReviewProcess(TO_BE_REVIEWED);
+        var inReview = metaDataRepository.countAllByReviewProcess(IN_REVIEW);
+        var reviewed = metaDataRepository.countAllByReviewProcess(REVIEWED);
+        return new ReviewStatusCount(tobereviewed,inReview,reviewed);
+    }
+    private ReviewStatusCount gerReviewerReviewStatsCount(String reviewerEmail){
+        var toBeReviwe = metaDataRepository.countAllByReviewProcessAndReviewerEmail(TO_BE_REVIEWED, reviewerEmail);
+        var inReview = metaDataRepository.countAllByReviewProcessAndReviewerEmail(IN_REVIEW, reviewerEmail);
+        var reviewed = metaDataRepository.countAllByReviewProcessAndReviewerEmail(REVIEWED, reviewerEmail);
+        return new ReviewStatusCount(toBeReviwe,inReview,reviewed);
+    }
+    private ReviewStatusCount gerUploaderReviewStatsCount(String uploaderEmail){
+        var toBeReviwe = metaDataRepository.countAllByReviewProcessAndUploaderEmail(TO_BE_REVIEWED, uploaderEmail);
+        var inReview = metaDataRepository.countAllByReviewProcessAndUploaderEmail(IN_REVIEW, uploaderEmail);
+        var reviewed = metaDataRepository.countAllByReviewProcessAndUploaderEmail(REVIEWED, uploaderEmail);
+        return new ReviewStatusCount(toBeReviwe,inReview,reviewed);
+    }
+
 
 }

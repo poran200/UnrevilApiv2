@@ -33,6 +33,7 @@ public class Response   {
      private List<Object> contentList;
      @JsonInclude(JsonInclude.Include.NON_NULL)
      private Page<?> page;
+     private Object reviewStatusCount;
 
 
 }
