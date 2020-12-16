@@ -1,24 +1,35 @@
 package com.unriviel.api.service.impl;
 
 import com.unriviel.api.annotation.CurrentUser;
-import com.unriviel.api.dto.UserRegDto;
-import com.unriviel.api.dto.UserResponse;
+import com.unriviel.api.dto.*;
 import com.unriviel.api.exception.UserLogoutException;
 import com.unriviel.api.model.*;
 import com.unriviel.api.model.payload.LogOutRequest;
 import com.unriviel.api.repository.RoleRepository;
+import com.unriviel.api.repository.UserPaginationRepertory;
 import com.unriviel.api.repository.UserRepository;
+import com.unriviel.api.util.UrlConstrains;
 import org.apache.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.unriviel.api.util.ResponseBuilder.getSuccessResponseList;
+import static com.unriviel.api.util.ResponseBuilder.getSuccessResponsePage;
 
 @Service
 public class UserService {
@@ -29,15 +40,19 @@ public class UserService {
     private final RoleRepository  roleRepository;
     private final UserDeviceService userDeviceService;
     private final RefreshTokenService refreshTokenService;
+    private final UserPaginationRepertory userPaginationRepertory;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, UserDeviceService userDeviceService, RefreshTokenService refreshTokenService) {
+    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, UserDeviceService userDeviceService, RefreshTokenService refreshTokenService, UserPaginationRepertory userPaginationRepertory, ModelMapper modelMapper) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
 
         this.userDeviceService = userDeviceService;
         this.refreshTokenService = refreshTokenService;
+        this.userPaginationRepertory = userPaginationRepertory;
+        this.modelMapper = modelMapper;
     }
 
     /**
@@ -162,6 +177,29 @@ public class UserService {
         logger.info("Removing refresh token associated with device [" + userDevice + "]");
         refreshTokenService.deleteById(userDevice.getRefreshToken().getId());
     }
+    public Response findAllReviewersByUserName(String userName){
+        var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithAndRolesRole(userName, RoleName.ROLE_REVIEWER, PageRequest.of(0, 10))
+                .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
+        return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+    }
+    public Response finAllInfluencersByUserName(String userName){
+        var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithAndRolesRole(userName, RoleName.ROLE_INFLUENCER, PageRequest.of(0, 10))
+                .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
+        return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+    }
+    public Response findAllReviewers(Pageable pageable){
+        var userResponseDtoList = userPaginationRepertory.findAllByRolesRole(RoleName.ROLE_REVIEWER, pageable)
+                .map(user -> modelMapper.map(user, ReviewerResponseDto.class)).getContent();
+        return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+    }
+    public Response findAllInfluencer(Pageable pageable,HttpServletRequest req){
+        Page<InfluencerResponseDto> influencer = userPaginationRepertory.findAllByRolesRole(RoleName.ROLE_INFLUENCER, pageable)
+                .map(user -> modelMapper.map(user, InfluencerResponseDto.class));
+          influencer.getContent().forEach(dto-> dto.setProfileLink(ServletUriComponentsBuilder.fromRequest(req)
+                  .replacePath(UrlConstrains.ProfileManagement.ROOT).path("/").path(dto.getEmail()).toUriString()));
+        return getSuccessResponsePage(HttpStatus.OK,"reviewer list",influencer);
+    }
+
     public boolean userAccountDisable(String email){
         var user = findByEmail(email);
         if (user.isPresent()){

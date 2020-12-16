@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 @CrossOrigin("*")
 @RestController
@@ -132,5 +133,15 @@ public class UserController {
             return ResponseEntity.ok(new ApiResponse(true,"user["+email+"] account enable "));
         }else
             return ResponseEntity.badRequest().body(new ApiResponse(false,email +" user not found"));
+    }
+    @GetMapping("/reviewers/{userName}")
+    public ResponseEntity findByReviewerName(@PathVariable String userName){
+        var respon = userService.findAllReviewersByUserName(userName);
+        return ResponseEntity.status((int) respon.getStatusCode()).body(respon);
+    }
+    @GetMapping("/influencers/{userName}")
+    public ResponseEntity findByIInfluencersName(@PathVariable String userName, HttpServletRequest req){
+        var respon = userService.finAllInfluencersByUserName(userName);
+        return ResponseEntity.status((int) respon.getStatusCode()).body(respon);
     }
 }

@@ -29,8 +29,6 @@ public class Profile   implements Serializable {
     private String relevantQsAns_1;
     private String relevantQsAns_2;
     private String relevantQsAns_3;
-    private  int totalUploadContent;
-    private  int totalApproved;
     @OneToOne
     @JsonIgnore
     private User user;
