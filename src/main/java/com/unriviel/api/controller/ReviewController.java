@@ -1,7 +1,5 @@
 package com.unriviel.api.controller;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unriviel.api.annotation.APiController;
 import com.unriviel.api.dto.MetaDataFilterRequest;
 import com.unriviel.api.dto.Response;
@@ -17,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.DataInput;
-import java.io.IOException;
 
 @APiController
 @RequestMapping(UrlConstrains.ReviewManagement.ROOT)
@@ -76,20 +72,10 @@ public class ReviewController {
     @PostMapping(value = UrlConstrains.ReviewManagement.ON_REVIEW)
     public ResponseEntity<Object> onReview (@PathVariable(required = true) String videoId,
                                     @RequestBody ReviewQsAns reviewQsAns  ){
-        Response response = null;
         if (videoId == null || reviewQsAns == null){
             return ResponseEntity.badRequest().body("videoId ro reviewQsAns can not be null");
         }else {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-            try {
-                var qsAns = objectMapper.readValue((DataInput) reviewQsAns, ReviewQsAns.class);
-                 response = reviewService.onReview(qsAns, videoId);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            assert response != null;
+           Response response = reviewService.onReview(reviewQsAns, videoId);
             return ResponseEntity.status((int) response.getStatusCode()).body(response);
         }
     }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @APiController
 @RequestMapping(UrlConstrains.VideoIdGenerate.ROOT)
@@ -28,7 +29,10 @@ public class VideoIdGenerateController {
 
           Map<Integer, String> videosId  = new HashMap<>();
           for (int i = 1; i<= numberOfId; i++){
-              var uuid = VideoIdGenerator.generateUUID(ContentType.VIDEO, 1000);
+              Random random = new Random();
+              // generate a random integer from 0 to 899, then add 100
+              int x = random.nextInt(900) + 100;
+              var uuid = VideoIdGenerator.generateUUID(ContentType.VIDEO, x);
               videoMetaDataService.saveVideoStatus(new VideoResponse(uuid,null,false,null));
               videosId.put(i,uuid);
           }
