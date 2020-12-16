@@ -5,6 +5,7 @@ import com.unriviel.api.dto.MetaDataFilterRequest;
 import com.unriviel.api.dto.Response;
 import com.unriviel.api.dto.ReviewAssignRequest;
 import com.unriviel.api.model.metadata.review.ReviewQsAns;
+import com.unriviel.api.service.MataDataFilterService;
 import com.unriviel.api.service.ReviewAssignService;
 import com.unriviel.api.service.ReviewService;
 import com.unriviel.api.service.impl.UserService;
@@ -22,11 +23,13 @@ public class ReviewController {
     private final ReviewAssignService reviewAssignService;
     private final ReviewService reviewService;
     private final UserService userService;
+    private final MataDataFilterService filterService;
 
-    public ReviewController(ReviewAssignService reviewAssignService, ReviewService reviewService, UserService userService) {
+    public ReviewController(ReviewAssignService reviewAssignService, ReviewService reviewService, UserService userService, MataDataFilterService filterService) {
         this.reviewAssignService = reviewAssignService;
         this.reviewService = reviewService;
         this.userService = userService;
+        this.filterService = filterService;
     }
     @PostMapping(UrlConstrains.ReviewManagement.ASSIGN)
     public ResponseEntity<Object> assignReviewer(@Valid @RequestBody ReviewAssignRequest request){
@@ -54,18 +57,7 @@ public class ReviewController {
                                                       @RequestParam(defaultValue = "20") Integer pageSize){
 
         Pageable pageable = getpagAble(pageNumber, pageSize);
-        Response response = null;
-        if (request == null){
-            response = reviewService.findAll(pageable);
-         } else {
-            if (request.getAsinine() != null) {
-                response = reviewService.findAllByReviewerEmail(request.getAsinine(), pageable);
-            }
-            if (request.getUploader() != null) {
-                response = reviewService.finAllByUploaderEmail(request.getUploader(), pageable);
-            }
-         }
-        assert response != null;
+        Response  response = filterService.filterMetaDataByTiterOrEmailOrNameOrFullName(request,pageable);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
 
     }
@@ -83,5 +75,6 @@ public class ReviewController {
     private Pageable getpagAble(@RequestParam(defaultValue = "0") Integer pageNumber, @RequestParam(defaultValue = "20") Integer pageSize) {
         return PageRequest.of(pageNumber, pageSize);
     }
+
 
 }

@@ -10,4 +10,5 @@ public interface ReviewService {
     Response findAll(Pageable pageable);
     Response findAllByReviewerEmail(String email, Pageable pageable );
     Response finAllByUploaderEmail(String email,Pageable pageable);
+    Response findAllByScorchKey(String key, Pageable pageable);
 }

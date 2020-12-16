@@ -80,6 +80,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
+    @Override
+    public Response findAllByScorchKey(String key, Pageable pageable) {
+         throw new   UnsupportedOperationException();
+    }
+
+
+
     private VideoMetaData setupReviewData(VideoMetaData videoMetaData, ReviewQsAns review) {
         videoMetaData.setReviewQsAns(review);
         videoMetaData.reviewStatusSet();

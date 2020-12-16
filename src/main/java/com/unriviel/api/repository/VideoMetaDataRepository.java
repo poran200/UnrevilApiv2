@@ -18,6 +18,10 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
       Page<VideoMetaData>findAllByReviewerEmailOrderByCreatedAtDesc(String reviewerEmail,Pageable pageable);
 //      @Query(value = "select  * from VideoMetaData where VideoMetaData .uploader = :email")
 //      Page<VideoMetaData>findAllFilter(String reviewerEmail,Pageable pageable);
+
+      Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email,String reviewer_fullName, Pageable pageable);
+      Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndUploaderEmailOrderByCreatedAtDesc(String title, String reviewer_username,
+                                                                                                            String reviewer_email,String reviewer_fullName,String uploaderEmail, Pageable pageable);
       Integer countAllByReviewProcessAndReviewerEmail(ReviewStatus reviewStatus,String reviewerEmail);
       Integer countAllByReviewProcessAndUploaderEmail(ReviewStatus reviewStatus,String reviewerEmail);
       Integer countAllByReviewProcess(ReviewStatus reviewProcess);
