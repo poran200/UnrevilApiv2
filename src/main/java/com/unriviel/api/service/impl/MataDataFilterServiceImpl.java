@@ -34,6 +34,8 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
              response = findAllBySearchKeyWithTitleOrAssigneeEmailOrUserNameOrFullNameAndUploader(req.getSearchBy(), req.getUploader(), pageable);
          }else if (isLoginUserIsAdmin(req)&& isScarceKeyIsEmpty(req) && !isUploaderEmailIsEmpty(req)){
              response = reviewService.finAllByUploaderEmail(req.getUploader(),pageable);
+         }else if (isLoginUserIsAdmin(req)&& isScarceKeyIsEmpty(req)&& isUploaderEmailIsEmpty(req)){
+             response = reviewService.findAll(pageable);
          }
          return response;
 
