@@ -1,6 +1,7 @@
 package com.unriviel.api.controller.upload;
 
 import com.unriviel.api.annotation.APiController;
+import com.unriviel.api.dto.VideoExternalUrlRequest;
 import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.service.VideoMetaDataService;
 import com.unriviel.api.util.UrlConstrains;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @APiController
 @RequestMapping(UrlConstrains.VideoMetaDataManagement.ROOT)
@@ -41,6 +44,11 @@ public class VideoMetadataController {
                                               @RequestParam(defaultValue = "20") int pageSize){
         var pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
         var response = videoMetaDataService.finByUserEmail(email, pageRequest);
+        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+    }
+    @PostMapping(UrlConstrains.VideoMetaDataManagement.CREATE)
+    public ResponseEntity createVideoExternalUrl(@Valid @RequestBody VideoExternalUrlRequest request){
+        var response = videoMetaDataService.saveWithExternalUrl(request);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
 }

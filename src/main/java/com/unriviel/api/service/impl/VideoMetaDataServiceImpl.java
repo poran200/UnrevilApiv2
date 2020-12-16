@@ -1,6 +1,7 @@
 package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.Response;
+import com.unriviel.api.dto.VideoExternalUrlRequest;
 import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.dto.VideoResponse;
 import com.unriviel.api.enums.ReviewStatus;
@@ -143,5 +144,18 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
                     "Updated",modelMapper.map(save, VideoMetadataRequestDto.class));
         }
         return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"video not found");
+    }
+
+    @Override
+    public Response saveWithExternalUrl(VideoExternalUrlRequest request) {
+        var metaData = videoMetaDataRepository.findById(request.getVideoId());
+        if (metaData.isPresent()){
+            metaData.get().setExternalVideoUrl(request.getUrl());
+            videoMetaDataRepository.save(metaData.get());
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
+                    "Url save Successfully",null);
+        }
+        return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,
+                "VideoId not found= "+request.getVideoId());
     }
 }

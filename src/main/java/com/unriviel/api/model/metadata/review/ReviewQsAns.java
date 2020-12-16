@@ -1,5 +1,6 @@
 package com.unriviel.api.model.metadata.review;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ import static com.unriviel.api.model.metadata.review.AnsStatus.YES;
 @Entity
 @EqualsAndHashCode
 @TypeDef(name = "json",typeClass = JsonStringType.class)
-public class ReviewQsAns {
+public class ReviewQsAns  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -44,6 +46,7 @@ public class ReviewQsAns {
     List<Integer> audioOptionList = new ArrayList<>();
     String comment;
 
+    @JsonIgnore
     public boolean isApproved(){
         boolean isApproved = false ;
         if (!this.onReviewOnProcessIsRunning()){
@@ -82,6 +85,7 @@ public class ReviewQsAns {
       return isApproved;
     }
 
+    @JsonIgnore
     public boolean onReviewOnProcessIsRunning(){
         boolean onProcess = false;
         if (this.isTitleCorrect == null|| this.isDescriptionSuitable ==null){

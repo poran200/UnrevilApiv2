@@ -1,6 +1,7 @@
 package com.unriviel.api.service;
 
 import com.unriviel.api.dto.Response;
+import com.unriviel.api.dto.VideoExternalUrlRequest;
 import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.dto.VideoResponse;
 import org.springframework.data.domain.Pageable;
@@ -13,4 +14,5 @@ public interface VideoMetaDataService {
     void saveVideoStatus(VideoResponse response);
     boolean isExistById(String videoId);
     Response update(String videoId, VideoMetadataRequestDto videoMetadataRequestDto);
+    Response saveWithExternalUrl(VideoExternalUrlRequest request);
 }
