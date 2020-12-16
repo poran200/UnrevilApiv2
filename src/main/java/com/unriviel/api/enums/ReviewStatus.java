@@ -1,6 +1,8 @@
 package com.unriviel.api.enums;
 
-public enum ReviewStatus {
+import java.io.Serializable;
+
+public enum ReviewStatus implements Serializable {
     TO_BE_REVIEWED,
     IN_REVIEW,
     REVIEWED,

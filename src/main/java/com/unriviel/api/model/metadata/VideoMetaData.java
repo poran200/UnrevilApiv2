@@ -2,6 +2,7 @@ package com.unriviel.api.model.metadata;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.unriviel.api.enums.ReviewStatus;
+import com.unriviel.api.enums.ReviewStatusConverter;
 import com.unriviel.api.model.User;
 import com.unriviel.api.model.audit.DateAudit;
 import com.unriviel.api.model.metadata.review.ReviewQsAns;
@@ -61,7 +62,8 @@ public class VideoMetaData extends DateAudit implements Serializable {
      @ElementCollection
      private List<Integer> contentUses = new ArrayList<>();
 //     private boolean isApproved;
-    @Enumerated(value = EnumType.STRING)
+    @Convert(converter = ReviewStatusConverter.class)
+//    @Enumerated(value = EnumType.STRING)
     private ReviewStatus reviewStatus;
      private boolean isUploaded;
      @ManyToOne
@@ -99,4 +101,11 @@ public class VideoMetaData extends DateAudit implements Serializable {
           }
 
      }
+
+    public ReviewStatus getReviewStatus() {
+         if (reviewStatus == null){
+             return null;
+         }
+        return reviewStatus;
+    }
 }

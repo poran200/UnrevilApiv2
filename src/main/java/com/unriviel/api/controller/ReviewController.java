@@ -10,6 +10,8 @@ import com.unriviel.api.service.ReviewAssignService;
 import com.unriviel.api.service.ReviewService;
 import com.unriviel.api.service.impl.UserService;
 import com.unriviel.api.util.UrlConstrains;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -62,8 +64,10 @@ public class ReviewController {
 
     }
     @PostMapping(value = UrlConstrains.ReviewManagement.ON_REVIEW)
+    @Operation(description = "Update and start review by videoId")
     public ResponseEntity<Object> onReview (@PathVariable(required = true) String videoId,
-                                    @RequestBody ReviewQsAns reviewQsAns  ){
+                                  @Parameter(description = "Make sure the ans should be this format [yes,no,notSure] otherwise it will be null ")
+                                  @RequestBody ReviewQsAns reviewQsAns  ){
         if (videoId == null || reviewQsAns == null){
             return ResponseEntity.badRequest().body("videoId ro reviewQsAns can not be null");
         }else {

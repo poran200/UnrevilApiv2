@@ -35,6 +35,9 @@ public class ReviewAssignServiceImpl implements ReviewAssignService {
         if (metaData.isPresent()){
             var reviewer = userRepository.findByEmail(reviewerEmail);
             if (reviewer.isPresent()) {
+                if (metaData.get().getReviewer() != null && metaData.get().getReviewer().getEmail().equals(reviewerEmail)){
+                   return ResponseBuilder.getFailureResponse(HttpStatus.NOT_ACCEPTABLE,"reviewer already assign for this video");
+                }
                 metaData.get().setReviewer(reviewer.get());
                 metaData.get().setAssigned(true);
                 metaData.get().setAssignedAt(new Date());

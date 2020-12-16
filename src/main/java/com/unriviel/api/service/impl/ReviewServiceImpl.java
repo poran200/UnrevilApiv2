@@ -36,18 +36,22 @@ public class ReviewServiceImpl implements ReviewService {
         var metaData = metaDataRepository.findById(videoId);
         if (metaData.isPresent()){
             var videoMetaData = metaData.get();
-            if (videoMetaData.getReviewQsAns() == null) {
+            if (videoMetaData.getReviewStatus() == null){
+                if (videoMetaData.getReviewQsAns() == null) {
+                    var review = ansRepository.save(reviewQsAns);
+                    var saveMetadata = setupReviewData(videoMetaData, review);
+                    var responseDto = modelMapper.map(saveMetadata, VideoMetadataResponseDto.class);
+                    return getSuccessResponse(HttpStatus.OK,"Review started",responseDto);
+                }
+                var qsAns = videoMetaData.getReviewQsAns();
+                reviewQsAns.setId(qsAns.getId());
                 var review = ansRepository.save(reviewQsAns);
                 var saveMetadata = setupReviewData(videoMetaData, review);
                 var responseDto = modelMapper.map(saveMetadata, VideoMetadataResponseDto.class);
-                return getSuccessResponse(HttpStatus.OK,"Review started",responseDto);
+                return getSuccessResponse(HttpStatus.OK,"Updated",responseDto);
             }
-            var qsAns = videoMetaData.getReviewQsAns();
-            reviewQsAns.setId(qsAns.getId());
-            var review = ansRepository.save(reviewQsAns);
-            var saveMetadata = setupReviewData(videoMetaData, review);
-            var responseDto = modelMapper.map(saveMetadata, VideoMetadataResponseDto.class);
-           return getSuccessResponse(HttpStatus.OK,"Updated",responseDto);
+            return getFailureResponse(HttpStatus.NOT_ACCEPTABLE,"Video Already Reviewed");
+
         }
       return   getFailureResponse(HttpStatus.NOT_FOUND,"Meta data not found");
     }
@@ -94,8 +98,10 @@ public class ReviewServiceImpl implements ReviewService {
         var saveMetadata = metaDataRepository.save(videoMetaData);
         var reviewStatus = saveMetadata.getReviewStatus();
         if (reviewStatus != null){
+           updateUserReview(reviewStatus,saveMetadata.getReviewer());
+        }
+        if (reviewStatus != null && reviewStatus.equals(APPROVED)){
             updateUserUpload(reviewStatus,saveMetadata.getUploader());
-            updateUserReview(reviewStatus,saveMetadata.getReviewer());
         }
         return saveMetadata;
     }

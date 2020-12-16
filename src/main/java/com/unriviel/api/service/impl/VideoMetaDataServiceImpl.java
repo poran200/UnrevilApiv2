@@ -90,14 +90,6 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
             userOptional=  userService.findByEmail(response.getUserEmail());
         }
         VideoMetaData metaData = new VideoMetaData();
-        metaData.setVideoId(response.getVideoId());
-        metaData.setVideoUrl(response.getUrl());
-        metaData.setUploaded(response.isUploaded());
-        userOptional.ifPresent(metaData::setUploader);
-        if (response.isUploaded()) {
-            userOptional.ifPresent(User::increaseUpload);
-            metaData.setReviewProcess(ReviewStatus.TO_BE_REVIEWED);
-        }
         var videoMetaData = videoMetaDataRepository.findById(response.getVideoId());
         if (videoMetaData.isPresent()){
             var data = videoMetaData.get();
@@ -108,13 +100,23 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
             if (response.isUploaded()){
                 userOptional.ifPresent(User::increaseUpload);
                 data.setReviewProcess(ReviewStatus.TO_BE_REVIEWED);
+                userOptional.ifPresent(userService::save);
             }
 
             videoMetaDataRepository.save(data);
         }else {
+            metaData.setVideoId(response.getVideoId());
+            metaData.setVideoUrl(response.getUrl());
+            metaData.setUploaded(response.isUploaded());
+            userOptional.ifPresent(metaData::setUploader);
+            if (response.isUploaded()) {
+                userOptional.ifPresent(User::increaseUpload);
+                metaData.setReviewProcess(ReviewStatus.TO_BE_REVIEWED);
+                userOptional.ifPresent(userService::save);
+            }
             videoMetaDataRepository.save(metaData);
         }
-        userOptional.ifPresent(userService::save);
+
     }
 
     @Override
