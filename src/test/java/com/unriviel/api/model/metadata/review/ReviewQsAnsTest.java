@@ -12,7 +12,7 @@ class ReviewQsAnsTest {
     @Test
     void isApproved() {
         var images = new ArrayList<ReviewImage>();
-        images.add(new ReviewImage(YES, YES));
+        images.add(new ReviewImage("url",YES, YES));
         var locations = new ArrayList<ReviewLocation>();
         locations.add(new ReviewLocation("dhaka",YES));
         var tags = new ArrayList<ReviewTag>();
