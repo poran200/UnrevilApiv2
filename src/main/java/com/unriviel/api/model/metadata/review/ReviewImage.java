@@ -11,6 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewImage implements Serializable {
+     private String url;
      private AnsStatus isRelated;
      private AnsStatus isGoodComposition;
 
