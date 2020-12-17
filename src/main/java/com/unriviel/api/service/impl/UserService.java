@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -177,17 +178,28 @@ public class UserService {
         logger.info("Removing refresh token associated with device [" + userDevice + "]");
         refreshTokenService.deleteById(userDevice.getRefreshToken().getId());
     }
-    public Response findAllReviewersByUserName(String userName){
-        var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithAndRolesRole(userName, RoleName.ROLE_REVIEWER, PageRequest.of(0, 10))
-                .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
-        return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+    public Response findAllReviewersByUserName(String key){
+        var optional = roleRepository.findByRole(RoleName.ROLE_REVIEWER);
+        if (optional.isPresent()){
+            var userResponseDtoList = userPaginationRepertory.findAllByRolesRoleOrUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(optional.get().getRole(),key,key,key,  PageRequest.of(0, 10))
+                    .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
+            return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+        }
+        return getSuccessResponseList(HttpStatus.OK,"reviewer list",new ArrayList<>(),0);
+
     }
-    public Response finAllInfluencersByUserName(String userName){
-        var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithAndRolesRole(userName, RoleName.ROLE_INFLUENCER, PageRequest.of(0, 10))
-                .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
-        return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+    public Response finAllInfluencersByUserName(String key){
+        var optional = roleRepository.findByRole(RoleName.ROLE_INFLUENCER);
+        if (optional.isPresent()){
+            var userResponseDtoList = userPaginationRepertory.findAllByRolesRoleOrUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(optional.get().getRole(),key,key,key, PageRequest.of(0, 10))
+                    .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
+            return getSuccessResponseList(HttpStatus.OK,"influencer list",userResponseDtoList,userResponseDtoList.size());
+        }
+        return getSuccessResponseList(HttpStatus.OK,"influencer list",new ArrayList<>(),0);
+
     }
     public Response findAllReviewers(Pageable pageable){
+
         var userResponseDtoList = userPaginationRepertory.findAllByRolesRole(RoleName.ROLE_REVIEWER, pageable)
                 .map(user -> modelMapper.map(user, ReviewerResponseDto.class)).getContent();
         return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
@@ -197,7 +209,7 @@ public class UserService {
                 .map(user -> modelMapper.map(user, InfluencerResponseDto.class));
           influencer.getContent().forEach(dto-> dto.setProfileLink(ServletUriComponentsBuilder.fromRequest(req)
                   .replacePath(UrlConstrains.ProfileManagement.ROOT).path("/").path(dto.getEmail()).toUriString()));
-        return getSuccessResponsePage(HttpStatus.OK,"reviewer list",influencer);
+        return getSuccessResponsePage(HttpStatus.OK,"influencer list",influencer);
     }
 
     public boolean userAccountDisable(String email){

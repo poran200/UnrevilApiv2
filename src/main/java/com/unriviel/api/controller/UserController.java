@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -134,14 +136,36 @@ public class UserController {
         }else
             return ResponseEntity.badRequest().body(new ApiResponse(false,email +" user not found"));
     }
-    @GetMapping("/reviewers/{userName}")
-    public ResponseEntity findByReviewerName(@PathVariable String userName){
-        var respon = userService.findAllReviewersByUserName(userName);
+    @GetMapping("/reviewers/{searchKey}")
+    @Operation(description = "search by username or email or full name")
+    public ResponseEntity findByReviewerName(@PathVariable String searchKey){
+        var respon = userService.findAllReviewersByUserName(searchKey);
         return ResponseEntity.status((int) respon.getStatusCode()).body(respon);
     }
-    @GetMapping("/influencers/{userName}")
-    public ResponseEntity findByIInfluencersName(@PathVariable String userName, HttpServletRequest req){
-        var respon = userService.finAllInfluencersByUserName(userName);
+    @GetMapping("/influencers/{searchKey}")
+    @Operation(description = "search by username or email or full name")
+    public ResponseEntity findByIInfluencersName(@PathVariable String searchKey){
+        var respon = userService.finAllInfluencersByUserName(searchKey);
+        return ResponseEntity.status((int) respon.getStatusCode()).body(respon);
+    }
+    @PostMapping("/influencers")
+    @Operation(description = "Get all the influencers")
+    public ResponseEntity findAllInfluencers( @RequestParam(defaultValue = "0") int pageNumber,
+                                              @RequestParam(defaultValue = "20") int pageSize,
+                                              @RequestParam(defaultValue = "createdAt") String sortBy,
+                                              HttpServletRequest req){
+        var pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        var respon = userService.findAllInfluencer(pageRequest,req);
+        return ResponseEntity.status((int) respon.getStatusCode()).body(respon);
+    }
+    @PostMapping("/reviewers")
+    @Operation(description = "Get all the reviewers")
+    public ResponseEntity findAllReviewers(@RequestParam(defaultValue = "0") int pageNumber,
+                                           @RequestParam(defaultValue = "20") int pageSize,
+                                           @RequestParam(defaultValue = "createdAt") String sortBy,
+                                           HttpServletRequest req){
+        var pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        var respon = userService.findAllReviewers(pageRequest);
         return ResponseEntity.status((int) respon.getStatusCode()).body(respon);
     }
 }
