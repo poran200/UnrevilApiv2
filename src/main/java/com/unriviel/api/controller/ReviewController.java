@@ -67,7 +67,7 @@ public class ReviewController {
     @Operation(description = "Update and start review by videoId")
     public ResponseEntity<Object> onReview (@PathVariable(required = true) String videoId,
                                   @Parameter(description = "Make sure the ans should be this format [yes,no,notSure] otherwise it will be null ")
-                                  @RequestBody ReviewQsAns reviewQsAns  ){
+                                  @RequestBody(required = true) ReviewQsAns reviewQsAns  ){
         if (videoId == null || reviewQsAns == null){
             return ResponseEntity.badRequest().body("videoId ro reviewQsAns can not be null");
         }else {

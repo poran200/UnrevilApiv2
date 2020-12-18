@@ -25,4 +25,6 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
       Integer countAllByReviewProcessAndReviewerEmail(ReviewStatus reviewStatus,String reviewerEmail);
       Integer countAllByReviewProcessAndUploaderEmail(ReviewStatus reviewStatus,String reviewerEmail);
       Integer countAllByReviewProcess(ReviewStatus reviewProcess);
+      //for admin //
+//      Page<VideoMetaData> findAllByReviewProcessI
 }

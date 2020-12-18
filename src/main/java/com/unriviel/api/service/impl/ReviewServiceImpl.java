@@ -36,7 +36,7 @@ public class ReviewServiceImpl implements ReviewService {
         var metaData = metaDataRepository.findById(videoId);
         if (metaData.isPresent()){
             var videoMetaData = metaData.get();
-            if (videoMetaData.getReviewStatus() == null){
+            if (videoMetaData.getReviewStatus() != null){
                 if (videoMetaData.getReviewQsAns() == null) {
                     var review = ansRepository.save(reviewQsAns);
                     var saveMetadata = setupReviewData(videoMetaData, review);
