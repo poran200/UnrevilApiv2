@@ -1,6 +1,7 @@
 package com.unriviel.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.metadata.Audio;
 import com.unriviel.api.model.metadata.Images;
 import com.unriviel.api.model.metadata.Location;
@@ -45,8 +46,10 @@ public class VideoMetadataRequestDto {
     private Audio audio;
 
     private List<Integer> contentUses = new ArrayList<>();
-    private boolean isApproved;
+    private ReviewStatus reviewStatus;
     @JsonProperty(value = "uploadDate")
     private String createdAt;
+    private boolean isUploaded;
+    private  boolean isFetchedFromUrl;
 
 }

@@ -52,7 +52,6 @@ public class JsonTest {
         dto.setTags(new ArrayList<>(Collections.singleton("tags")));
         dto.setAudio(new Audio(true,false,"123322"));
         dto.setContentUses(List.of(1,2,3));
-        dto.setApproved(false);
 
     }
 }

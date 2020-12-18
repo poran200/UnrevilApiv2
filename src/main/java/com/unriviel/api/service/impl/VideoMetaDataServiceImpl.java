@@ -1,9 +1,6 @@
 package com.unriviel.api.service.impl;
 
-import com.unriviel.api.dto.Response;
-import com.unriviel.api.dto.VideoExternalUrlRequest;
-import com.unriviel.api.dto.VideoMetadataRequestDto;
-import com.unriviel.api.dto.VideoResponse;
+import com.unriviel.api.dto.*;
 import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.User;
 import com.unriviel.api.model.metadata.VideoMetaData;
@@ -61,6 +58,16 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         var optionalVideoMetaData = videoMetaDataRepository.findById(videoId);
         if (optionalVideoMetaData.isPresent()){
             var metadataDto = modelMapper.map(optionalVideoMetaData.get(), VideoMetadataRequestDto.class);
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
+                    "Video meta data  found",metadataDto);
+        }
+        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
+                "Video metadata not found [id]="+videoId);
+    }
+    public Response findByVideoIdReview(String videoId) {
+        var optionalVideoMetaData = videoMetaDataRepository.findById(videoId);
+        if (optionalVideoMetaData.isPresent()){
+            var metadataDto = modelMapper.map(optionalVideoMetaData.get(), VideoMetadataResponseDto.class);
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
                     "Video meta data  found",metadataDto);
         }
@@ -153,6 +160,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         var metaData = videoMetaDataRepository.findById(request.getVideoId());
         if (metaData.isPresent()){
             metaData.get().setExternalVideoUrl(request.getUrl());
+            metaData.get().setFetchedFromUrl(false);
             videoMetaDataRepository.save(metaData.get());
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
                     "Url save Successfully",null);
