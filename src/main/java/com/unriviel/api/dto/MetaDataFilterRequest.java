@@ -14,4 +14,6 @@ public class MetaDataFilterRequest {
     private String uploader;
     private Date date;
     private int lastActivity;
+    private int reviewProcess;
+
 }
