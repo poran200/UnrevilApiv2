@@ -62,10 +62,10 @@ public class VideoMetaData extends DateAudit implements Serializable {
      @ElementCollection
      private List<Integer> contentUses = new ArrayList<>();
 //     private boolean isApproved;
-    @Convert(converter = ReviewStatusConverter.class)
+     @Convert(converter = ReviewStatusConverter.class)
 //    @Enumerated(value = EnumType.STRING)
-    private ReviewStatus reviewStatus;
-    private  boolean isFetchedFromUrl;
+     private ReviewStatus reviewStatus;
+     private  boolean isFetchedFromUrl;
      private boolean isUploaded;
      @ManyToOne
      @JsonIgnoreProperties(value = {"password","active","roles","isEmailVerified","totalUpload","totalApproved","totalAssigned","totalReviewed"},allowGetters = false)

@@ -63,7 +63,7 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
         return  req.getSearchBy().isBlank() || req.getUploader() == null;
     }
     private  boolean isDateIsEmpty(MetaDataFilterRequest req){
-         return req.getDate() == null;
+         return req.getSortBy() == null;
     }
     private  boolean isActivelyDayIsZero(MetaDataFilterRequest request){
        return request.getLastActivity() == 0;

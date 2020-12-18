@@ -54,7 +54,7 @@ public class ReviewController {
 
     }
     @PostMapping(UrlConstrains.ReviewManagement.VIDEOSPOST)
-    public ResponseEntity<Object> getAllVideoMetadata(@Valid @RequestBody(required = false) MetaDataFilterRequest request,
+    public ResponseEntity<Object> getAllVideoMetadata(@Valid@RequestBody(required = true) MetaDataFilterRequest request,
                                                       @RequestParam(defaultValue = "0") Integer pageNumber,
                                                       @RequestParam(defaultValue = "20") Integer pageSize){
 
