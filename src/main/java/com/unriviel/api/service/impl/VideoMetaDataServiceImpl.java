@@ -64,6 +64,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,
                 "Video metadata not found [id]="+videoId);
     }
+    @Override
     public Response findByVideoIdReview(String videoId) {
         var optionalVideoMetaData = videoMetaDataRepository.findById(videoId);
         if (optionalVideoMetaData.isPresent()){

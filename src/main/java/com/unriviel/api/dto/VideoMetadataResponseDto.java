@@ -1,6 +1,7 @@
 package com.unriviel.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.model.User;
 import com.unriviel.api.model.metadata.Audio;
@@ -33,7 +34,8 @@ public class VideoMetadataResponseDto {
     private boolean isAdultContent;
     private boolean isIncludePromotion;
     private String recodedYear;
-
+    @JsonProperty(value = "uploadDate")
+    private String createdAt;
     List<Location> locations;
     private List<String> tags;
     private Audio audio;

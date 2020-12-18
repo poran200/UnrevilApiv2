@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 public interface VideoMetaDataService {
     Response save(VideoMetadataRequestDto metadataDto);
     Response findByVideoId(String videoId);
+    Response findByVideoIdReview(String videoId);
     Response finByUserEmail(String email, Pageable pageable);
     Response approvedVideo(String videoId,boolean isApproved,String reviewedBy);
     void saveVideoStatus(VideoResponse response);

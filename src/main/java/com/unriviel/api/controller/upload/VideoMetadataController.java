@@ -25,6 +25,11 @@ public class VideoMetadataController {
         var metadata = videoMetaDataService.findByVideoId(id);
         return ResponseEntity.status((int) metadata.getStatusCode()).body(metadata);
     }
+    @GetMapping(UrlConstrains.VideoMetaDataManagement.GET_BY_ID_REVIEW)
+    public ResponseEntity getByIdReview(@PathVariable String id){
+        var metadata = videoMetaDataService.findByVideoIdReview(id);
+        return ResponseEntity.status((int) metadata.getStatusCode()).body(metadata);
+    }
 
 //    @PostMapping(UrlConstrains.VideoMetaDataManagement.CREATE)
 //    public ResponseEntity<Object> create(@RequestBody(required = true) VideoMetadataRequestDto dto ){
