@@ -17,6 +17,6 @@ public class ProfileResponseDto {
     private String relevantQsAns_1;
     private String relevantQsAns_2;
     private String relevantQsAns_3;
-    private  int totalUploadContent;
-    private  int totalApproved;
+//    private User user;
+
 }

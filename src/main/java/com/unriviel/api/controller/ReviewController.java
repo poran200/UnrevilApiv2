@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +60,9 @@ public class ReviewController {
                                                       @RequestParam(defaultValue = "20") Integer pageSize){
 
         Pageable pageable = getpagAble(pageNumber, pageSize);
+        if (!request.getSortBy().isEmpty()){
+             pageable = getpagAble(pageNumber, pageSize, Sort.by(request.getSortBy()));
+        }
         Response  response = filterService.filterMetaDataByTiterOrEmailOrNameOrFullName(request,pageable);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
 
@@ -78,6 +82,9 @@ public class ReviewController {
 
     private Pageable getpagAble(@RequestParam(defaultValue = "0") Integer pageNumber, @RequestParam(defaultValue = "20") Integer pageSize) {
         return PageRequest.of(pageNumber, pageSize);
+    }
+    private Pageable getpagAble(@RequestParam(defaultValue = "0") Integer pageNumber, @RequestParam(defaultValue = "20") Integer pageSize, Sort sort) {
+        return PageRequest.of(pageNumber, pageSize,sort);
     }
 
 

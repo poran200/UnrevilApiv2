@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
+
 @Repository
 public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,String> {
 
@@ -20,6 +22,11 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
 //      Page<VideoMetaData>findAllFilter(String reviewerEmail,Pageable pageable);
 
       Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email,String reviewer_fullName, Pageable pageable);
+      //Sl
+      Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndCreatedAtBetween(String title, String reviewer_username,  String reviewer_email, String reviewer_fullName, Instant today, Instant bernaysAgo, Pageable pageable);
+      //SR
+      Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndReviewProcessOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, ReviewStatus reviewProcess, Pageable pageable);
+      //Su
       Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndUploaderEmailOrderByCreatedAtDesc(String title, String reviewer_username,
                                                                                                             String reviewer_email,String reviewer_fullName,String uploaderEmail, Pageable pageable);
       Integer countAllByReviewProcessAndReviewerEmail(ReviewStatus reviewStatus,String reviewerEmail);

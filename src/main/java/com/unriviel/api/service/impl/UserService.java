@@ -5,10 +5,10 @@ import com.unriviel.api.dto.*;
 import com.unriviel.api.exception.UserLogoutException;
 import com.unriviel.api.model.*;
 import com.unriviel.api.model.payload.LogOutRequest;
+import com.unriviel.api.repository.ProfileRepository;
 import com.unriviel.api.repository.RoleRepository;
 import com.unriviel.api.repository.UserPaginationRepertory;
 import com.unriviel.api.repository.UserRepository;
-import com.unriviel.api.util.UrlConstrains;
 import org.apache.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
@@ -43,9 +41,10 @@ public class UserService {
     private final RefreshTokenService refreshTokenService;
     private final UserPaginationRepertory userPaginationRepertory;
     private final ModelMapper modelMapper;
+    private final ProfileRepository profileRepository;
 
     @Autowired
-    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, UserDeviceService userDeviceService, RefreshTokenService refreshTokenService, UserPaginationRepertory userPaginationRepertory, ModelMapper modelMapper) {
+    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, UserDeviceService userDeviceService, RefreshTokenService refreshTokenService, UserPaginationRepertory userPaginationRepertory, ModelMapper modelMapper, ProfileRepository profileRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -54,6 +53,7 @@ public class UserService {
         this.refreshTokenService = refreshTokenService;
         this.userPaginationRepertory = userPaginationRepertory;
         this.modelMapper = modelMapper;
+        this.profileRepository = profileRepository;
     }
 
     /**
@@ -204,11 +204,10 @@ public class UserService {
                 .map(user -> modelMapper.map(user, ReviewerResponseDto.class)).getContent();
         return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
     }
-    public Response findAllInfluencer(Pageable pageable,HttpServletRequest req){
-        Page<InfluencerResponseDto> influencer = userPaginationRepertory.findAllByRolesRole(RoleName.ROLE_INFLUENCER, pageable)
+    public Response findAllInfluencer(Pageable pageable){
+        Page<InfluencerResponseDto> influencer = profileRepository.findAllByUserRolesRole(RoleName.ROLE_INFLUENCER, pageable)
                 .map(user -> modelMapper.map(user, InfluencerResponseDto.class));
-          influencer.getContent().forEach(dto-> dto.setProfileLink(ServletUriComponentsBuilder.fromRequest(req)
-                  .replacePath(UrlConstrains.ProfileManagement.ROOT).path("/").path(dto.getEmail()).toUriString()));
+//         influencer.getContent().forEach(influencerResponseDto -> profileRepository.findByUserEmail(influencerResponseDto.getEmail()).ifPresent(influencerResponseDto::setProfile));
         return getSuccessResponsePage(HttpStatus.OK,"influencer list",influencer);
     }
 

@@ -153,9 +153,9 @@ public class UserController {
     public ResponseEntity findAllInfluencers( @RequestParam(defaultValue = "0") int pageNumber,
                                               @RequestParam(defaultValue = "20") int pageSize,
                                               @RequestParam(defaultValue = "createdAt") String sortBy,
-                                              HttpServletRequest req){
+                                              ){
         var pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
-        var respon = userService.findAllInfluencer(pageRequest,req);
+        var respon = userService.findAllInfluencer(pageRequest);
         return ResponseEntity.status((int) respon.getStatusCode()).body(respon);
     }
     @PostMapping("/reviewers")
