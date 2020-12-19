@@ -9,6 +9,8 @@ public class ReviewerResponseDto {
     private String email;
     private String fullName;
     private boolean isAccountNoneLocked;
+    private boolean active;
+    private String  createdAt;
     private  int totalAssigned;
     private int totalReviewed;
 
