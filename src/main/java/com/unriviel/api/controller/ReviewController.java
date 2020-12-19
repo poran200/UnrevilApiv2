@@ -64,6 +64,9 @@ public class ReviewController {
              pageable = getpagAble(pageNumber, pageSize, Sort.by(request.getSortBy()));
         }
         Response  response = filterService.filterMetaDataByTiterOrEmailOrNameOrFullName(request,pageable);
+        if (response == null){
+            return ResponseEntity.badRequest().body("filter combination is to match");
+        }
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
 
     }

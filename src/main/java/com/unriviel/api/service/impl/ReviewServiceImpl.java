@@ -62,7 +62,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
 
         return getSuccessResponsePageWithReviewCount(HttpStatus.OK,
-                        "Videos",page,getAdminReviewStatsCount());
+                        "find all videos",page,getAdminReviewStatsCount());
     }
 
     @Override

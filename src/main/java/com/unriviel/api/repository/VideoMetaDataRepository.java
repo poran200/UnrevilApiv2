@@ -25,14 +25,21 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
       Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email,String reviewer_fullName, Pageable pageable);
       //Scarch and last activty
       Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetween(String title, String reviewer_username,  String reviewer_email, String reviewer_fullName, Instant today, Instant beforeDay, Pageable pageable);
-      //SR
+      //scarch and last acitvity and review process
+      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetweenAndReviewProcess(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, Instant today, Instant beforeDay, ReviewStatus reviewProcess, Pageable pageable);
+      //S and R_process
       Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndReviewProcessOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, ReviewStatus reviewProcess, Pageable pageable);
-      //Su
+      //Su/ skip now
       Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndUploaderEmailOrderByCreatedAtDesc(String title, String reviewer_username,
                                                                                                             String reviewer_email,String reviewer_fullName,String uploaderEmail, Pageable pageable);
       Integer countAllByReviewProcessAndReviewerEmail(ReviewStatus reviewStatus,String reviewerEmail);
       Integer countAllByReviewProcessAndUploaderEmail(ReviewStatus reviewStatus,String reviewerEmail);
       Integer countAllByReviewProcess(ReviewStatus reviewProcess);
       //for admin //
-//      Page<VideoMetaData> findAllByReviewProcessI
+      //only review
+      Page<VideoMetaData> findAllByReviewProcess(ReviewStatus reviewProcess, Pageable pageable);
+      //only last activity
+      Page<VideoMetaData> findAllByCreatedAtBetween(Instant today, Instant beforeAgo, Pageable pageable);
+      //review and last acitvity
+      Page<VideoMetaData> findAllByReviewProcessAndCreatedAtBetween(ReviewStatus reviewProcess, Instant today, Instant beforeAgo, Pageable pageable);
 }
