@@ -20,9 +20,8 @@ public class InfluencerResponseDto {
     private String relevantQsAns_1;
     private String relevantQsAns_2;
     private String relevantQsAns_3;
-    @JsonIgnoreProperties(value = {"password","active","roles","isEmailVerified",
-            "totalAssigned","totalReviewed","createdAt"})
+    @JsonIgnoreProperties(value = {"password","roles","emailVerified",
+            "totalAssigned","totalReviewed","updatedAt","admin"})
     private User user;
-
 
 }
