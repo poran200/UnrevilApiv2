@@ -103,10 +103,5 @@ public class VideoMetaData extends DateAudit implements Serializable {
 
      }
 
-    public ReviewStatus getReviewStatus() {
-         if (reviewStatus == null){
-             return null;
-         }
-        return reviewStatus;
-    }
+
 }
