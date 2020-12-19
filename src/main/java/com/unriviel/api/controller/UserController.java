@@ -152,7 +152,7 @@ public class UserController {
     @Operation(description = "Get all the influencers")
     public ResponseEntity findAllInfluencers( @RequestParam(defaultValue = "0") int pageNumber,
                                               @RequestParam(defaultValue = "20") int pageSize,
-                                              @RequestParam(defaultValue = "createdAt") String sortBy,
+                                              @RequestParam(defaultValue = "createdAt") String sortBy
                                               ){
         var pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
         var respon = userService.findAllInfluencer(pageRequest);
