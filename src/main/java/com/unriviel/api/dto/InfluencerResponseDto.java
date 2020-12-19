@@ -24,4 +24,5 @@ public class InfluencerResponseDto {
             "totalAssigned","totalReviewed","createdAt"})
     private User user;
 
+
 }

@@ -1,6 +1,6 @@
 package com.unriviel.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.unriviel.api.model.audit.DateAudit;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,8 +13,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(of = {"id"})
-public class Profile   implements Serializable {
+@EqualsAndHashCode(of = {"id"}, callSuper = false)
+//@JsonIgnoreProperties(value = {"createdAt","updatedAt"})
+public class Profile  extends DateAudit implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -30,7 +32,7 @@ public class Profile   implements Serializable {
     private String relevantQsAns_2;
     private String relevantQsAns_3;
     @OneToOne
-    @JsonIgnore
+//    @JsonIgnore
     private User user;
 
 

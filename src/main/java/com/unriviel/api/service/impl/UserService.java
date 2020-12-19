@@ -205,7 +205,7 @@ public class UserService {
         return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
     }
     public Response findAllInfluencer(Pageable pageable){
-        Page<InfluencerResponseDto> influencer = profileRepository.findAllByUserRolesRole(RoleName.ROLE_INFLUENCER, pageable)
+        Page<InfluencerResponseDto> influencer = profileRepository.findAllByUserRolesRole(RoleName.ROLE_INFLUENCER,pageable)
                 .map(user -> modelMapper.map(user, InfluencerResponseDto.class));
 //         influencer.getContent().forEach(influencerResponseDto -> profileRepository.findByUserEmail(influencerResponseDto.getEmail()).ifPresent(influencerResponseDto::setProfile));
         return getSuccessResponsePage(HttpStatus.OK,"influencer list",influencer);

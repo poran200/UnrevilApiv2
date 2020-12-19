@@ -21,11 +21,12 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
 //      @Query(value = "select  * from VideoMetaData where VideoMetaData .uploader = :email")
 //      Page<VideoMetaData>findAllFilter(String reviewerEmail,Pageable pageable);
 
-      Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email,String reviewer_fullName, Pageable pageable);
-      //Sl
-      Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndCreatedAtBetween(String title, String reviewer_username,  String reviewer_email, String reviewer_fullName, Instant today, Instant bernaysAgo, Pageable pageable);
+      //only scarch key word
+      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email,String reviewer_fullName, Pageable pageable);
+      //Scarch and last activty
+      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetween(String title, String reviewer_username,  String reviewer_email, String reviewer_fullName, Instant today, Instant beforeDay, Pageable pageable);
       //SR
-      Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndReviewProcessOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, ReviewStatus reviewProcess, Pageable pageable);
+      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndReviewProcessOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, ReviewStatus reviewProcess, Pageable pageable);
       //Su
       Page<VideoMetaData> findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndUploaderEmailOrderByCreatedAtDesc(String title, String reviewer_username,
                                                                                                             String reviewer_email,String reviewer_fullName,String uploaderEmail, Pageable pageable);

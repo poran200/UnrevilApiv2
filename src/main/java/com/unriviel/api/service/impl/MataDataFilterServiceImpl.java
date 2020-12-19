@@ -42,7 +42,7 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
    }
 
     public Response findAllBySearchKeyWithTitleOrAssigneeEmailOrUserNameOrFullName(String key, Pageable pageable) {
-        var page = metaDataRepository.findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameOrderByCreatedAtDesc(key, key, key, key, pageable)
+        var page = metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithOrderByCreatedAtDesc(key, key, key, key, pageable)
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
 
         return getSuccessResponsePage(HttpStatus.OK,"filter Data",page);
