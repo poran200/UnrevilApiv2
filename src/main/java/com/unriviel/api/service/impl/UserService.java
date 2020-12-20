@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -188,15 +187,10 @@ public class UserService {
 
     }
     public Response findAllReviewersWithDetailsBySearchKey(String key){
-        var optional = roleRepository.findByRole(RoleName.ROLE_REVIEWER);
-        if (optional.isPresent()){
-            var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithOrEmailStartingWithOrFullNameStartingWithAndRolesRole(key,key,key,optional.get().getRole(),  PageRequest.of(0, 15))
-                    .stream().filter(User::isReviewer)
-                    .map(user -> modelMapper.map(user, ReviewerResponseDto.class)).collect(Collectors.toList());
-            return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList, userResponseDtoList.size());
-        }
-        return getSuccessResponseList(HttpStatus.OK,"reviewer list",new ArrayList<>(),0);
-
+        var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(key,key,key, PageRequest.of(0, 15))
+                .stream().filter(User::isReviewer)
+                .map(user -> modelMapper.map(user, ReviewerResponseDto.class)).collect(Collectors.toList());
+        return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
     }
     public Response finAllInfluencersByUserName(String key){
 

@@ -208,7 +208,7 @@ public class AuthController {
 
         return Optional.ofNullable(newEmailToken.getUser())
                 .map(registeredUser -> {
-                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+":3000/confirmation?");
+                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+"/confirmation?");
                     OnRegenerateEmailVerificationEvent regenerateEmailVerificationEvent = new OnRegenerateEmailVerificationEvent(registeredUser, urlBuilder, newEmailToken);
                     applicationEventPublisher.publishEvent(regenerateEmailVerificationEvent);
                     return ResponseEntity.ok(new ApiResponse(true, "Email verification resent successfully"));
@@ -238,7 +238,7 @@ public class AuthController {
     public ResponseEntity registrationUser(UserRegDto dto ,RoleName roleName){
         return authService.registerUser(dto, roleName )
                 .map(user -> {
-                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+":3000/confirmation?");
+                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+":/confirmation?");
                     OnUserRegistrationCompleteEvent onUserRegistrationCompleteEvent = new OnUserRegistrationCompleteEvent(user, urlBuilder);
                     applicationEventPublisher.publishEvent(onUserRegistrationCompleteEvent);
                     logger.info("Registered User returned [API[: " + user);
@@ -249,8 +249,15 @@ public class AuthController {
 
     @PostMapping("/sendReviewerInviteLink")
     public ResponseEntity setInvitationLinkToReviewer(@Valid @RequestBody(required = true) InviteEmailDto dto){
-        UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path("/inviteLink");
-        OnReviewerInvitationLinkEvent  reviewerInvitationLinkEvent = new OnReviewerInvitationLinkEvent(builder,dto.getEmail());
+
+        OnInvitationLinkEvent reviewerInvitationLinkEvent = new OnInvitationLinkEvent(dto.getEmail(), "reviewer");
+        applicationEventPublisher.publishEvent(reviewerInvitationLinkEvent);
+        return ResponseEntity.ok().body(new ApiResponse(true,"Invitation link send successfully "));
+    }
+    @PostMapping("/sendInfluencerInviteLink")
+    public ResponseEntity setInvitationLinkToInfluencer(@Valid @RequestBody(required = true) InviteEmailDto dto){
+
+        OnInvitationLinkEvent reviewerInvitationLinkEvent = new OnInvitationLinkEvent(dto.getEmail(), "influencer");
         applicationEventPublisher.publishEvent(reviewerInvitationLinkEvent);
         return ResponseEntity.ok().body(new ApiResponse(true,"Invitation link send successfully "));
     }
