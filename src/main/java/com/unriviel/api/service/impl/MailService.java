@@ -6,7 +6,6 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -113,8 +112,20 @@ public class MailService {
         helper.setFrom(mail.getFrom());
         mailSender.send(message);
     }
-    public void sendInvitation(String inviteLink){
-        SimpleMailMessage message = new SimpleMailMessage();
+    public void sendInvitation(String inviteLink, String sub,String email){
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        final String message = "You are  get  invitation Link . To confirm your registration,  please click on the below link.";
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage,false, "utf-8");
+            helper.setTo(email);
+            helper.setSubject(sub);
+            helper.setText(message + "\r\n"+inviteLink,true);
+            helper.setFrom(mailFrom);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        mailSender.send(mimeMessage);
 
     }
 

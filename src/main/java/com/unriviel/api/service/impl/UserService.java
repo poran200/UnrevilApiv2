@@ -212,8 +212,8 @@ public class UserService {
     public Response findAllReviewers(Pageable pageable){
 
         var userResponseDtoList = userPaginationRepertory.findAllByRolesRole(RoleName.ROLE_REVIEWER, pageable)
-                .map(user -> modelMapper.map(user, ReviewerResponseDto.class)).getContent();
-        return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+                .map(user -> modelMapper.map(user, ReviewerResponseDto.class));
+        return getSuccessResponsePage(HttpStatus.OK,"reviewer list",userResponseDtoList);
     }
     public Response findAllInfluencer(Pageable pageable){
         Page<InfluencerResponseDto> influencer = profileRepository.findAllByUserRolesRole(RoleName.ROLE_INFLUENCER,pageable)
