@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserPaginationRepertory extends PagingAndSortingRepository<User,Long> {
     Page<User> findAllByUsernameStartingWith(String username, Pageable pageable);
-    Page<User>findAllByRolesRoleOrUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(RoleName role, String username, String email, String fullName, Pageable pageable);
+    Page<User>findAllByUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(String username, String email, String fullName, Pageable pageable);
+    Page<User>findAllByUsernameStartingWithOrEmailStartingWithOrFullNameStartingWithAndRolesRole(String username, String email, String fullName,RoleName role, Pageable pageable);
     Page<User>findAllByRolesRole(RoleName roles_role, Pageable pageable);
 }

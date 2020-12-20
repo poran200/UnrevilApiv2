@@ -107,6 +107,13 @@ public class User extends DateAudit {
     public  boolean isAdmin(){
         var optional = this.roles.stream().filter(Role::isAdminRole).findFirst();
         return optional.isPresent();
+    } public  boolean isReviewer(){
+        var optional = this.roles.stream().filter(Role::isReviewerRole).findFirst();
+        return optional.isPresent();
+    }
+    public  boolean isInfluencer(){
+        var optional = this.roles.stream().filter(Role::isInfluencerRole).findFirst();
+        return optional.isPresent();
     }
 
     public String getFullName() {

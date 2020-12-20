@@ -179,23 +179,40 @@ public class UserService {
         refreshTokenService.deleteById(userDevice.getRefreshToken().getId());
     }
     public Response findAllReviewersByUserName(String key){
+
+            var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(key,key,key, PageRequest.of(0, 15))
+                     .stream().filter(User::isReviewer)
+                    .map(user -> modelMapper.map(user, UserResponseDto.class)).collect(Collectors.toList());
+            return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+
+
+    }
+    public Response findAllReviewersWithDetailsBySearchKey(String key){
         var optional = roleRepository.findByRole(RoleName.ROLE_REVIEWER);
         if (optional.isPresent()){
-            var userResponseDtoList = userPaginationRepertory.findAllByRolesRoleOrUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(optional.get().getRole(),key,key,key,  PageRequest.of(0, 10))
-                    .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
-            return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList,userResponseDtoList.size());
+            var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithOrEmailStartingWithOrFullNameStartingWithAndRolesRole(key,key,key,optional.get().getRole(),  PageRequest.of(0, 15))
+                    .stream().filter(User::isReviewer)
+                    .map(user -> modelMapper.map(user, ReviewerResponseDto.class)).collect(Collectors.toList());
+            return getSuccessResponseList(HttpStatus.OK,"reviewer list",userResponseDtoList, userResponseDtoList.size());
         }
         return getSuccessResponseList(HttpStatus.OK,"reviewer list",new ArrayList<>(),0);
 
     }
     public Response finAllInfluencersByUserName(String key){
-        var optional = roleRepository.findByRole(RoleName.ROLE_INFLUENCER);
-        if (optional.isPresent()){
-            var userResponseDtoList = userPaginationRepertory.findAllByRolesRoleOrUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(optional.get().getRole(),key,key,key, PageRequest.of(0, 10))
-                    .map(user -> modelMapper.map(user, UserResponseDto.class)).getContent();
+
+            var userResponseDtoList = userPaginationRepertory.findAllByUsernameStartingWithOrEmailStartingWithOrFullNameStartingWith(key,key,key, PageRequest.of(0, 10))
+                     .stream().filter(User::isInfluencer)
+                    .map(user -> modelMapper.map(user, UserResponseDto.class)).collect(Collectors.toList());
             return getSuccessResponseList(HttpStatus.OK,"influencer list",userResponseDtoList,userResponseDtoList.size());
-        }
-        return getSuccessResponseList(HttpStatus.OK,"influencer list",new ArrayList<>(),0);
+
+
+    }
+    public Response finAllInfluencerSearchWithDalis(String key){
+//        var optional = roleRepository.findByRole(RoleName.ROLE_INFLUENCER);
+
+            var page = profileRepository.findAllByUserUsernameStartingWithOrUserEmailStartingWithOrUserFullNameStartingWith(key, key, key, PageRequest.of(0, 10))
+                    .map(user -> modelMapper.map(user, InfluencerResponseDto.class)).getContent();
+            return getSuccessResponseList(HttpStatus.OK,"influencer list",page,page.size());
 
     }
     public Response findAllReviewers(Pageable pageable){

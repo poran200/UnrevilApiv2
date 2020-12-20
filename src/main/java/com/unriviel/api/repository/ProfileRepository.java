@@ -15,6 +15,8 @@ public interface ProfileRepository extends JpaRepository<Profile,Long> {
       Optional<Profile> findByIdAndUserEmail(long  id, String userName);
 //      Page<Profile> findAllByUserRoles(List<Role> roles, Pageable pageable);
       Page<Profile> findAllByUserRolesRole(RoleName user_roles_role, Pageable pageable);
+      Page<Profile> findAllByUserUsernameStartingWithOrUserEmailStartingWithOrUserFullNameStartingWith(String user_username,  String user_email, String user_fullName, Pageable pageable);
 //      @Query("select * from Profile where user.id = user.roles.")
 //      List<Object>findAllInfluncer();
+
 }
