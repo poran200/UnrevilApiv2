@@ -1,0 +1,134 @@
+package com.unriviel.api.service.impl;
+
+import com.unriviel.api.dto.Response;
+import com.unriviel.api.dto.VideoResponse;
+import com.unriviel.api.exception.FileStorageException;
+import com.unriviel.api.exception.MyFileNotFoundException;
+import com.unriviel.api.properties.VideoDownloadsProperties;
+import com.unriviel.api.service.VideoMetaDataService;
+import com.unriviel.api.util.ResponseBuilder;
+import com.unriviel.api.util.UrlConstrains;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Objects;
+
+@Service
+@Log4j2
+public class DownloadVideoStorageService {
+    private final Path fileStorageLocation;
+    private final VideoMetaDataService metaDataService;
+    private final UserService userService;
+    @Autowired
+    public DownloadVideoStorageService(VideoDownloadsProperties fileStorageProperties, VideoMetaDataService metaDataService, UserService userService) {
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+                .toAbsolutePath().normalize();
+        this.metaDataService = metaDataService;
+        this.userService = userService;
+
+        try {
+            Files.createDirectories(this.fileStorageLocation);
+        } catch (Exception ex) {
+            log.info("create the file directory first  location not found ");
+            throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
+        }
+    }
+
+    public Response storeFile(MultipartFile file, String videoId, HttpServletRequest request, String userEmail) {
+        // Normalize file name
+
+        String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        var replaceFileName = replaceFileName(file, videoId);
+        Path filePath = this.fileStorageLocation.resolve(replaceFileName).normalize();
+        var path = ServletUriComponentsBuilder.fromRequest(request)
+                .replacePath(UrlConstrains.VideoUpload.ROOT).path("/");
+        String finalReplaceName = replaceFileName(file,videoId);
+//        var responseBefor = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+//
+//        metaDataService.saveVideoStatus(responseBefor);
+
+        try {
+            // Check if the file's name contains invalid characters
+            if(originalFileName.contains("..")) {
+//                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
+                return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Sorry! Filename contains invalid path sequence "+originalFileName);
+            }
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()){
+                return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"file is already exits");
+            }else {
+
+                // Copy file to the target location (Replacing existing file with the same name)
+                Path targetLocation = this.fileStorageLocation.resolve(finalReplaceName);
+                Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                var responseAfter = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), true, userEmail);
+                metaDataService.saveVideoStatus(responseAfter);
+                log.info("video save successfully");
+                return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED,
+                        "file save successfully", responseAfter);
+            }
+
+        }catch (MultipartException e){
+            var responseException = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+            metaDataService.saveVideoStatus(responseException);
+            return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Could not store file " + file.getOriginalFilename() + ". Please try again!");
+        }
+        catch (IOException e) {
+            var responseException = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+            metaDataService.saveVideoStatus(responseException);
+            e.printStackTrace();
+            return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Could not store file " + file.getOriginalFilename() + ". Please try again!");
+        }
+
+    }
+    public Response reStore(MultipartFile file,String videoId,String userEmail,HttpServletRequest req){
+        return   storeFile(file,videoId,req,userEmail);
+
+    }
+    private boolean isFileExits(MultipartFile file, Resource resource) throws IOException {
+        if (resource.exists()){
+            log.info("resource already exist "+resource.getFilename());
+            Path targetLocation = this.fileStorageLocation.resolve(Objects.requireNonNull(resource.getFilename()));
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        }
+        return false;
+    }
+
+    private String replaceFileName(MultipartFile file ,String videoId) {
+        String[] split = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        return split[0]= videoId+"."+split[1];
+    }
+
+    public Resource loadFileAsResource(String fileName)  {
+        try {
+            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if(resource.exists()) {
+                return resource;
+            } else {
+                throw new MyFileNotFoundException("File not found " + fileName);
+            }
+        } catch (MalformedURLException ex) {
+            throw new MyFileNotFoundException("File not found " + fileName, ex);
+        }
+    }
+}
+
+
+
