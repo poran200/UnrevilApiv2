@@ -108,7 +108,7 @@ public class User extends DateAudit {
         var optional = this.roles.stream().filter(Role::isAdminRole).findFirst();
         return optional.isPresent();
     } public  boolean isReviewer(){
-        var optional = this.roles.stream().filter(Role::isReviewerRole).findFirst();
+        var optional = this.roles.stream().filter(role -> role.isReviewerRole()).findFirst();
         return optional.isPresent();
     }
     public  boolean isInfluencer(){

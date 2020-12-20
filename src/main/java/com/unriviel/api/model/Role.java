@@ -43,7 +43,7 @@ public class Role {
     }
 
     public boolean isReviewerRole(){
-        return null != this && this.role.equals(RoleName.ROLE_INFLUENCER);
+        return null != this && this.role.equals(RoleName.ROLE_REVIEWER);
     }
     public Long getId() {
         return id;
