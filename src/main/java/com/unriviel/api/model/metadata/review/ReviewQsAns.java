@@ -82,6 +82,8 @@ public class ReviewQsAns  implements Serializable {
                     }
                     isApproved = true;
                 }
+            }if (thumbnailImage !=null && isApproved){
+               isApproved= thumbnailImage.getIsRelated().equals(YES) && thumbnailImage.getIsGoodComposition().equals(YES);
             }
         }
 

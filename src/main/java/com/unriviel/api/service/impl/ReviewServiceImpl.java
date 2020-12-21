@@ -36,6 +36,9 @@ public class ReviewServiceImpl implements ReviewService {
         var metaData = metaDataRepository.findById(videoId);
         if (metaData.isPresent()){
             var videoMetaData = metaData.get();
+            if (!videoMetaData.isAssigned()){
+                 return getFailureResponse(HttpStatus.BAD_REQUEST,"Video is not assigned");
+            }
             if (videoMetaData.getReviewStatus() == null){
                 if (videoMetaData.getReviewQsAns() == null) {
                     var review = ansRepository.save(reviewQsAns);
