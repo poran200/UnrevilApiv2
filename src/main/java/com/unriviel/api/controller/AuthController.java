@@ -237,7 +237,7 @@ public class AuthController {
     public ResponseEntity registrationUser(UserRegDto dto ,RoleName roleName){
         return authService.registerUser(dto, roleName )
                 .map(user -> {
-                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+":/confirmation?");
+                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+"/confirmation?");
                     OnUserRegistrationCompleteEvent onUserRegistrationCompleteEvent = new OnUserRegistrationCompleteEvent(user, urlBuilder);
                     applicationEventPublisher.publishEvent(onUserRegistrationCompleteEvent);
                     logger.info("Registered User returned [API[: " + user);
