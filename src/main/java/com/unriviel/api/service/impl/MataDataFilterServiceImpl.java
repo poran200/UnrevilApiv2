@@ -2,6 +2,7 @@ package com.unriviel.api.service.impl;
 
 import com.unriviel.api.dto.MetaDataFilterRequest;
 import com.unriviel.api.dto.Response;
+import com.unriviel.api.dto.ReviewStatusCount;
 import com.unriviel.api.dto.VideoMetadataResponseDto;
 import com.unriviel.api.enums.ReviewStatus;
 import com.unriviel.api.repository.VideoMetaDataRepository;
@@ -17,7 +18,10 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import static com.unriviel.api.enums.ReviewStatus.*;
 import static com.unriviel.api.util.ResponseBuilder.getSuccessResponsePage;
+import static com.unriviel.api.util.ResponseBuilder.getSuccessResponsePageWithReviewCount;
+
 @Service
 public class MataDataFilterServiceImpl implements MataDataFilterService {
     private final VideoMetaDataRepository metaDataRepository;
@@ -71,7 +75,7 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
         var page = metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithOrderByCreatedAtDesc(key, key, key, key, pageable)
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
 
-        return getSuccessResponsePage(HttpStatus.OK,"filter apply by search key ",page);
+        return getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply by search key ",page,getAdminReviewStatsCount());
     }
     public Response findAllBySearchKeyWithTitleOrAssigneeEmailOrUserNameOrFullNameAndUploader(String key,String uploaderEmail, Pageable pageable) {
         var page = metaDataRepository.findAllByTitleOrReviewerUsernameOrReviewerEmailOrReviewerFullNameAndUploaderEmailOrderByCreatedAtDesc(key, key, key, key,uploaderEmail, pageable)
@@ -82,34 +86,34 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
     private Response findAllSearchKeyAndActivityAndProcess(String key,Instant today,Instant  beforeAgo,ReviewStatus process,Pageable pageable){
         var page =  metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetweenAndReviewProcess(key,key,key,key,today,beforeAgo,process,pageable)
                  .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
-         return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"filter apply on search  key and review process and last activity ",page);
+         return ResponseBuilder.getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply on search  key and review process and last activity ",page,getAdminReviewStatsCount());
 
     }
     private Response findAllBySearchKeyAndReviewProcess(String key,ReviewStatus process,Pageable pageable){
         var page = metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndReviewProcessOrderByCreatedAtDesc(key, key, key, key, process, pageable)
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
-        return getSuccessResponsePage(HttpStatus.OK,"filter apply on search key and review process",page);
+        return getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply on search key and review process",page,getAdminReviewStatsCount());
     }
     private Response findAllSearchKeyAndLastActivity(String key,Instant today,Instant beforeAgo,Pageable pageable){
         var page = metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetween(key, key, key, key, today, beforeAgo, pageable)
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
-        return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"filter apply on search key and activity",page);
+        return ResponseBuilder.getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply on search key and activity",page,getAdminReviewStatsCount());
 
 
     }
     private Response findAllLastActivityAndRevileProcess(ReviewStatus process,Instant today,Instant beforeDay,Pageable pageable){
         var page = metaDataRepository.findAllByReviewProcessAndCreatedAtBetween(process, today, beforeDay, pageable)
                      .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
-       return getSuccessResponsePage(HttpStatus.OK,"filter apply by activity and process ",page);
+       return getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply by activity and process ",page,getAdminReviewStatsCount());
     }
     private Response findAllByLastActivity(Instant today,Instant dayBefore,Pageable pageable){
         var page = metaDataRepository.findAllByCreatedAtBetween(today, dayBefore, pageable)
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
-        return getSuccessResponsePage(HttpStatus.OK,"filter apply by activity",page);
+        return getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply by activity",page,getAdminReviewStatsCount());
     }
     private Response findAllByReview(ReviewStatus process,Pageable pageable){
         var pa = metaDataRepository.findAllByReviewProcess(process, pageable).map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
-      return   getSuccessResponsePage(HttpStatus.OK,"filter apply by review process",pa);
+      return   getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply by review process",pa,getAdminReviewStatsCount());
     }
     private boolean isAllFiledBlank(MetaDataFilterRequest req){
         return isScarceKeyIsEmpty(req)&&isDateIsEmpty(req)&&isActivelyDayIsZero(req) && isUploaderEmailIsEmpty(req);
@@ -143,6 +147,12 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
     }
     private  Instant today(){
         return new GregorianCalendar().getTime().toInstant();
+    }
+    public ReviewStatusCount getAdminReviewStatsCount(){
+        var tobereviewed = metaDataRepository.countAllByReviewProcess(TO_BE_REVIEWED);
+        var inReview = metaDataRepository.countAllByReviewProcess(IN_REVIEW);
+        var reviewed = metaDataRepository.countAllByReviewProcess(REVIEWED);
+        return new ReviewStatusCount(tobereviewed,inReview,reviewed);
     }
 
 }

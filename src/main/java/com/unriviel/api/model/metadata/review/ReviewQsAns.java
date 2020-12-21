@@ -37,6 +37,9 @@ public class ReviewQsAns  implements Serializable {
     List<ReviewImage> reviewImages = new ArrayList<>();
     @Type(type = "json")
     @Column(columnDefinition = "json")
+    private ReviewImage thumbnailImage;
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
     List<ReviewTag> reviewTags = new ArrayList<>();
     @Type(type = "json")
     @Column(columnDefinition = "json")
@@ -118,6 +121,7 @@ public class ReviewQsAns  implements Serializable {
 
             }
         }
+        onProcess = thumbnailImage == null || thumbnailImage.getIsGoodComposition() == null || thumbnailImage.getIsRelated() == null && !onProcess;
 
       return  onProcess;
     }

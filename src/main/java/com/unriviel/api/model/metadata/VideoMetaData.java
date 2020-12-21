@@ -36,7 +36,7 @@ public class VideoMetaData extends DateAudit implements Serializable {
      private long videoSize;
      private  int videoFps;
      private int videoResolution;
-
+     private String fetchStatus;
      private String title;
      @Column(length = 1000)
      private String description;

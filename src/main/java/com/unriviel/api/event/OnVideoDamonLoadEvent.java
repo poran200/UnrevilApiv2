@@ -2,6 +2,8 @@ package com.unriviel.api.event;
 
 import org.springframework.context.ApplicationEvent;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class OnVideoDamonLoadEvent extends ApplicationEvent {
     /**
      * Create a new {@code ApplicationEvent}.
@@ -12,7 +14,17 @@ public class OnVideoDamonLoadEvent extends ApplicationEvent {
      private final String videoUrl;
      private final String videoId;
      private String userEmail;
-    public OnVideoDamonLoadEvent( String videoUrl,String videoId) {
+     private HttpServletRequest request;
+
+    public OnVideoDamonLoadEvent(String videoUrl, String videoId, String userEmail, HttpServletRequest request) {
+        super(videoUrl);
+        this.videoUrl = videoUrl;
+        this.videoId = videoId;
+        this.userEmail = userEmail;
+        this.request = request;
+    }
+
+    public OnVideoDamonLoadEvent(String videoUrl, String videoId) {
         super(videoUrl);
         this.videoId = videoId;
         this.videoUrl = videoUrl;
@@ -32,5 +44,13 @@ public class OnVideoDamonLoadEvent extends ApplicationEvent {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
     }
 }

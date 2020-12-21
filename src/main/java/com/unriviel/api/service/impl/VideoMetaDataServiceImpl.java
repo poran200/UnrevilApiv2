@@ -172,4 +172,10 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
         return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,
                 "VideoId not found= "+request.getVideoId());
     }
+
+    @Override
+    public void saveVideoInfo(String videoId,VideoInfo videoInfo) {
+        var metaData = videoMetaDataRepository.findById(videoId);
+
+    }
 }

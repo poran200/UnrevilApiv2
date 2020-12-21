@@ -119,7 +119,7 @@ public class ReviewServiceImpl implements ReviewService {
               userService.save(user);
         }
     }
-    private ReviewStatusCount getAdminReviewStatsCount(){
+    public ReviewStatusCount getAdminReviewStatsCount(){
         var tobereviewed = metaDataRepository.countAllByReviewProcess(TO_BE_REVIEWED);
         var inReview = metaDataRepository.countAllByReviewProcess(IN_REVIEW);
         var reviewed = metaDataRepository.countAllByReviewProcess(REVIEWED);
