@@ -9,13 +9,14 @@ import com.unriviel.api.repository.VideoMetaDataRepository;
 import com.unriviel.api.service.MataDataFilterService;
 import com.unriviel.api.service.ReviewService;
 import com.unriviel.api.util.ResponseBuilder;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static com.unriviel.api.enums.ReviewStatus.*;
@@ -23,6 +24,7 @@ import static com.unriviel.api.util.ResponseBuilder.getSuccessResponsePage;
 import static com.unriviel.api.util.ResponseBuilder.getSuccessResponsePageWithReviewCount;
 
 @Service
+@Log4j2
 public class MataDataFilterServiceImpl implements MataDataFilterService {
     private final VideoMetaDataRepository metaDataRepository;
     private final ModelMapper modelMapper;
@@ -83,8 +85,8 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
 
         return getSuccessResponsePage(HttpStatus.OK,"filter Data",page);
     }
-    private Response findAllSearchKeyAndActivityAndProcess(String key,Instant today,Instant  beforeAgo,ReviewStatus process,Pageable pageable){
-        var page =  metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetweenAndReviewProcess(key,key,key,key,today,beforeAgo,process,pageable)
+    private Response findAllSearchKeyAndActivityAndProcess(String key,Date today,Date  beforeAgo,ReviewStatus process,Pageable pageable){
+        var page =  metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtLessThanEqualAndCreatedAtGreaterThanEqualAndReviewProcess(key,key,key,key,today,beforeAgo,process,pageable)
                  .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
          return ResponseBuilder.getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply on search  key and review process and last activity ",page,getAdminReviewStatsCount());
 
@@ -94,20 +96,20 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
         return getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply on search key and review process",page,getAdminReviewStatsCount());
     }
-    private Response findAllSearchKeyAndLastActivity(String key,Instant today,Instant beforeAgo,Pageable pageable){
-        var page = metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetween(key, key, key, key, today, beforeAgo, pageable)
+    private Response findAllSearchKeyAndLastActivity(String key,Date today,Date beforeAgo,Pageable pageable){
+        var page = metaDataRepository.findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtLessThanEqualAndCreatedAtGreaterThanEqual(key, key, key, key, today, beforeAgo, pageable)
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
         return ResponseBuilder.getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply on search key and activity",page,getAdminReviewStatsCount());
 
 
     }
-    private Response findAllLastActivityAndRevileProcess(ReviewStatus process,Instant today,Instant beforeDay,Pageable pageable){
-        var page = metaDataRepository.findAllByReviewProcessAndCreatedAtBetween(process, today, beforeDay, pageable)
+    private Response findAllLastActivityAndRevileProcess(ReviewStatus process,Date today,Date beforeDay,Pageable pageable){
+        var page = metaDataRepository.findAllByReviewProcessAndCreatedAtLessThanEqualAndCreatedAtGreaterThanEqual(process, today, beforeDay, pageable)
                      .map(metaData -> modelMapper.map(metaData,VideoMetadataResponseDto.class));
        return getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply by activity and process ",page,getAdminReviewStatsCount());
     }
-    private Response findAllByLastActivity(Instant today,Instant dayBefore,Pageable pageable){
-        var page = metaDataRepository.findAllByCreatedAtBetween(today, dayBefore, pageable)
+    private Response findAllByLastActivity(Date today, Date dayBefore, Pageable pageable){
+        var page = metaDataRepository.findAllByCreatedAtLessThanEqualAndCreatedAtGreaterThanEqual(today, dayBefore, pageable)
                 .map(metaData -> modelMapper.map(metaData, VideoMetadataResponseDto.class));
         return getSuccessResponsePageWithReviewCount(HttpStatus.OK,"filter apply by activity",page,getAdminReviewStatsCount());
     }
@@ -140,13 +142,17 @@ public class MataDataFilterServiceImpl implements MataDataFilterService {
         if (reviewPores == 3) return ReviewStatus.REVIEWED;
         return  null;
     }
-    private Instant getBeforeDate(int lastDay){
+    private Date getBeforeDate(int lastDay){
         Calendar cal = new GregorianCalendar();
         cal.add(Calendar.DAY_OF_MONTH, -lastDay);
-        return cal.getTime().toInstant();
+
+        var time = cal.getTime();
+        log.info("date for last  activist ="+time);
+        return time;
+
     }
-    private  Instant today(){
-        return new GregorianCalendar().getTime().toInstant();
+    private Date today(){
+        return new GregorianCalendar().getTime();
     }
     public ReviewStatusCount getAdminReviewStatsCount(){
         var tobereviewed = metaDataRepository.countAllByReviewProcess(TO_BE_REVIEWED);

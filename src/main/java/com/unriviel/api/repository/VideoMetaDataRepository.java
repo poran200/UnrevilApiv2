@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
+import java.util.Date;
 
 @Repository
 public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,String> {
@@ -24,9 +24,9 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
       //only scarch key word
       Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email,String reviewer_fullName, Pageable pageable);
       //Scarch and last activty
-      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetween(String title, String reviewer_username,  String reviewer_email, String reviewer_fullName, Instant today, Instant beforeDay, Pageable pageable);
+      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtLessThanEqualAndCreatedAtGreaterThanEqual(String title, String reviewer_username,  String reviewer_email, String reviewer_fullName, Date today, Date beforeDay, Pageable pageable);
       //scarch and last acitvity and review process
-      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtBetweenAndReviewProcess(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, Instant today, Instant beforeDay, ReviewStatus reviewProcess, Pageable pageable);
+      Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndCreatedAtLessThanEqualAndCreatedAtGreaterThanEqualAndReviewProcess(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, Date today, Date beforeDay, ReviewStatus reviewProcess, Pageable pageable);
       //S and R_process
       Page<VideoMetaData> findAllByTitleStartingWithOrReviewerUsernameStartingWithOrReviewerEmailStartingWithOrReviewerFullNameStartingWithAndReviewProcessOrderByCreatedAtDesc(String title, String reviewer_username, String reviewer_email, String reviewer_fullName, ReviewStatus reviewProcess, Pageable pageable);
       //Su/ skip now
@@ -39,7 +39,8 @@ public interface VideoMetaDataRepository extends JpaRepository<VideoMetaData,Str
       //only review
       Page<VideoMetaData> findAllByReviewProcess(ReviewStatus reviewProcess, Pageable pageable);
       //only last activity
-      Page<VideoMetaData> findAllByCreatedAtBetween(Instant today, Instant beforeAgo, Pageable pageable);
+      Page<VideoMetaData> findAllByCreatedAtBetween(Date today, Date beforeAgo, Pageable pageable);
       //review and last acitvity
-      Page<VideoMetaData> findAllByReviewProcessAndCreatedAtBetween(ReviewStatus reviewProcess, Instant today, Instant beforeAgo, Pageable pageable);
+      Page<VideoMetaData> findAllByReviewProcessAndCreatedAtLessThanEqualAndCreatedAtGreaterThanEqual(ReviewStatus reviewProcess, Date today, Date beforeAgo, Pageable pageable);
+      Page<VideoMetaData> findAllByCreatedAtLessThanEqualAndCreatedAtGreaterThanEqual(Date createdAt, Date createdAt2, Pageable pageable);
 }
