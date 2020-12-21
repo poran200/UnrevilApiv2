@@ -147,9 +147,8 @@ public class AuthController {
 
         return authService.generatePasswordResetToken(passwordResetLinkRequest)
                 .map(passwordResetToken -> {
-                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath().path("/password/reset");
-                    OnGenerateResetLinkEvent generateResetLinkMailEvent = new OnGenerateResetLinkEvent(passwordResetToken,
-                            urlBuilder);
+                    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromUriString("http://"+clientServerHost+"/password/reset");
+                    OnGenerateResetLinkEvent generateResetLinkMailEvent = new OnGenerateResetLinkEvent(passwordResetToken,urlBuilder);
                     applicationEventPublisher.publishEvent(generateResetLinkMailEvent);
                     return ResponseEntity.ok(new ApiResponse(true, "Password reset link sent successfully"));
                 })

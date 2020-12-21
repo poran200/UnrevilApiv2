@@ -157,11 +157,13 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     }
 
     @Override
-    public Response saveWithExternalUrl(VideoExternalUrlRequest request) {
+    public Response saveWithExternalUrl(VideoExternalUrlRequest request,String email) {
         var metaData = videoMetaDataRepository.findById(request.getVideoId());
         if (metaData.isPresent()){
+            var optionalUser = userService.findByEmail(email);
             metaData.get().setExternalVideoUrl(request.getUrl());
             metaData.get().setFetchedFromUrl(false);
+            optionalUser.ifPresent(user ->  metaData.get().setUploader(user));
             videoMetaDataRepository.save(metaData.get());
             //todo
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK,

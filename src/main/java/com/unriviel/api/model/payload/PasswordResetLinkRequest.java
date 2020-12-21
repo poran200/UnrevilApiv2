@@ -2,7 +2,6 @@
 package com.unriviel.api.model.payload;
 
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.validation.constraints.NotBlank;
@@ -11,7 +10,6 @@ import javax.validation.constraints.NotBlank;
 public class PasswordResetLinkRequest {
 
     @NotBlank(message = "Email cannot be blank")
-    @Schema(name = "User registered email", required = true, allowableValues = "NonEmpty String")
     private String email;
 
     public PasswordResetLinkRequest(String email) {

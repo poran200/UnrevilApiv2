@@ -15,5 +15,5 @@ public interface VideoMetaDataService {
     void saveVideoStatus(VideoResponse response);
     boolean isExistById(String videoId);
     Response update(String videoId, VideoMetadataRequestDto videoMetadataRequestDto);
-    Response saveWithExternalUrl(VideoExternalUrlRequest request);
+    Response saveWithExternalUrl(VideoExternalUrlRequest request,String email);
 }
