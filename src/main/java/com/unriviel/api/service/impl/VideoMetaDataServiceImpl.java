@@ -185,6 +185,7 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
                  data.setVideoSize(videoInfo.getVideoSize());
                  data.setVideoFps(videoInfo.getVideoFps());
                  data.setFetchStatus(VideoInfo.VIDEO_SAVED);
+                 data.setVideoEncoding(videoInfo.getVideoEncoding());
                  data.setFetchedFromUrl(true);
                  data.setReviewProcess(ReviewStatus.TO_BE_REVIEWED);
              }else {
