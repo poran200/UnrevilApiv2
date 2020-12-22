@@ -30,6 +30,7 @@ public class VideoMetaData extends DateAudit implements Serializable {
      private String videoName;
      private String videoType;
      private String videoUrl;
+     @Column(length = 500)
      private String externalVideoUrl;
      private String videoEncoding;
      private long videoDuration;

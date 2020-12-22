@@ -103,7 +103,7 @@ public class VideoUploadController   {
         // Try to determine file's content type
         String contentType = null;
         try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getName());
+            contentType = request.getServletContext().getMimeType(resource.getFile().getName()+".mp4");
         } catch (IOException ex) {
             log.info("Could not determine file type.");
         }
@@ -118,6 +118,5 @@ public class VideoUploadController   {
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(new ByteArrayResource(bytes));
     }
-
 
 }

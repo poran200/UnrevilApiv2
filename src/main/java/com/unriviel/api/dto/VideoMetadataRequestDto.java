@@ -51,5 +51,6 @@ public class VideoMetadataRequestDto {
     private String createdAt;
     private boolean isUploaded;
     private  boolean isFetchedFromUrl;
+    private String fetchStatus;
 
 }

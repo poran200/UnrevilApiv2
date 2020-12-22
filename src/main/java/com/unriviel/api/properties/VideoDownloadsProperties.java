@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class VideoDownloadsProperties {
-    @Value("${app.file.dir.video}")
+    @Value("${app.file.dir.video.download}")
     private String uploadDir;
 
     public String getUploadDir() {

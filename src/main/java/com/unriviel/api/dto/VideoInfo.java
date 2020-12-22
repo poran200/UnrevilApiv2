@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 public class VideoInfo {
     public static final String URL_INVALID = "Url is not valid or not  public assessable";
     public static  final String VIDEO_FPS_NOT_GOOD= "Video fps not Valid";
-    public static  final  String ASPECT_RATIO_NOT_VALID="Aspect ration not valid";
-    public static final String VIDEO_TYPE_NOT_VALID= "Video type not valid";
+    public static  final  String ASPECT_RATIO_NOT_VALID="Aspect ratio not valid";
+    public static final String VIDEO_TYPE_NOT_VALID= "Video encoding not valid";
+    public static final String VIDEO_SAVED="Video successfully saved";
     private String videoId;
     private String videoName;
     private String videoType;

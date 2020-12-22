@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationEvent;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class OnVideoDamonLoadEvent extends ApplicationEvent {
+public class OnVideoDawonLoadEvent extends ApplicationEvent {
     /**
      * Create a new {@code ApplicationEvent}.
      *
@@ -16,7 +16,7 @@ public class OnVideoDamonLoadEvent extends ApplicationEvent {
      private String userEmail;
      private HttpServletRequest request;
 
-    public OnVideoDamonLoadEvent(String videoUrl, String videoId, String userEmail, HttpServletRequest request) {
+    public OnVideoDawonLoadEvent(String videoUrl, String videoId, String userEmail, HttpServletRequest request) {
         super(videoUrl);
         this.videoUrl = videoUrl;
         this.videoId = videoId;
@@ -24,7 +24,7 @@ public class OnVideoDamonLoadEvent extends ApplicationEvent {
         this.request = request;
     }
 
-    public OnVideoDamonLoadEvent(String videoUrl, String videoId) {
+    public OnVideoDawonLoadEvent(String videoUrl, String videoId) {
         super(videoUrl);
         this.videoId = videoId;
         this.videoUrl = videoUrl;

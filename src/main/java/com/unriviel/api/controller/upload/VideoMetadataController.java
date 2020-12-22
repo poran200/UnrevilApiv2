@@ -1,26 +1,31 @@
 package com.unriviel.api.controller.upload;
 
 import com.unriviel.api.annotation.APiController;
-import com.unriviel.api.annotation.CurrentUser;
 import com.unriviel.api.dto.VideoExternalUrlRequest;
 import com.unriviel.api.dto.VideoMetadataRequestDto;
+import com.unriviel.api.event.OnVideoDawonLoadEvent;
 import com.unriviel.api.model.CustomUserDetails;
 import com.unriviel.api.service.VideoMetaDataService;
 import com.unriviel.api.util.UrlConstrains;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @APiController
 @RequestMapping(UrlConstrains.VideoMetaDataManagement.ROOT)
 public class VideoMetadataController {
     private final VideoMetaDataService videoMetaDataService;
-
-    public VideoMetadataController(VideoMetaDataService videoMetaDataService) {
+    private final ApplicationEventPublisher eventPublisher;
+    public VideoMetadataController(VideoMetaDataService videoMetaDataService, ApplicationEventPublisher eventPublisher) {
         this.videoMetaDataService = videoMetaDataService;
+        this.eventPublisher = eventPublisher;
     }
     @GetMapping(UrlConstrains.VideoMetaDataManagement.GET_BY_ID)
     public ResponseEntity getById(@PathVariable String id){
@@ -54,10 +59,18 @@ public class VideoMetadataController {
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
     @PostMapping(UrlConstrains.VideoMetaDataManagement.CREATE)
-    public ResponseEntity createVideoExternalUrl(@CurrentUser CustomUserDetails details, @Valid @RequestBody VideoExternalUrlRequest request){
-        var email = details.getEmail();
-        var response = videoMetaDataService.saveWithExternalUrl(request,email);
-        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+    public ResponseEntity createVideoExternalUrl(@Valid @RequestBody VideoExternalUrlRequest request, HttpServletRequest req){
+       var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+       if (principal instanceof UserDetails){
+            var details = (CustomUserDetails) principal;
+           var username = details.getEmail();
+           System.out.println("username = " + username);
+           var response = videoMetaDataService.saveWithExternalUrl(request,username);
+           OnVideoDawonLoadEvent event =new OnVideoDawonLoadEvent(request.getUrl(),request.getVideoId(),username,req);
+           eventPublisher.publishEvent(event);
+           return ResponseEntity.status((int) response.getStatusCode()).body(response);
+       }
+       return ResponseEntity.badRequest().build();
     }
 }
 

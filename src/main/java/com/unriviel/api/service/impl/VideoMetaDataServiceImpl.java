@@ -165,7 +165,6 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
             metaData.get().setFetchedFromUrl(false);
             optionalUser.ifPresent(user ->  metaData.get().setUploader(user));
             videoMetaDataRepository.save(metaData.get());
-            //todo
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK,
                     "Url save Successfully",null);
         }
@@ -176,6 +175,24 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     @Override
     public void saveVideoInfo(String videoId,VideoInfo videoInfo) {
         var metaData = videoMetaDataRepository.findById(videoId);
-
+         if (metaData.isPresent()){
+             var data = metaData.get();
+             if (videoInfo.isValid()) {
+                 data.setVideoName(videoInfo.getVideoName());
+                 data.setVideoType(videoInfo.getVideoType());
+                 data.setVideoUrl(videoInfo.getVideoUrl());
+                 data.setVideoDuration(videoInfo.getVideoDuration());
+                 data.setVideoSize(videoInfo.getVideoSize());
+                 data.setVideoFps(videoInfo.getVideoFps());
+                 data.setFetchStatus(VideoInfo.VIDEO_SAVED);
+                 data.setFetchedFromUrl(true);
+                 data.setReviewProcess(ReviewStatus.TO_BE_REVIEWED);
+             }else {
+                 data.setFetchedFromUrl(false);
+                 data.setFetchStatus(videoInfo.getStatusMassage());
+                 videoMetaDataRepository.save(data);
+             }
+             videoMetaDataRepository.save(data);
+         }
     }
 }

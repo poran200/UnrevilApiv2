@@ -10,6 +10,7 @@ import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.probe.FFmpegFormat;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import net.bramp.ffmpeg.probe.FFmpegStream;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -17,22 +18,17 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Log4j2
@@ -44,7 +40,8 @@ public class DownloadVideoStorageService {
     @Value("${app.ffpobe.path}")
     private String FFPROBE_PATH;
     @Value("${app.video.type}")
-    private String VIDEO_TYPE;
+    private  String VIDEO_TYPE;
+    private  boolean delete = false;
     @Autowired
     public DownloadVideoStorageService(VideoDownloadsProperties fileStorageProperties, VideoMetaDataService metaDataService, UserService userService) {
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
@@ -62,38 +59,27 @@ public class DownloadVideoStorageService {
 
 
     public void storeFile(String videoUrl, String videoId) {
-
+        boolean isException = false;
         Path filePath = this.fileStorageLocation.resolve(videoId).normalize();
-
-        try {
-            URL url = new URL(videoUrl);
-            try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(filePath.toString());
-                 FileChannel fileChannel = fileOutputStream.getChannel()) {
-                fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-                var checkMd5Hash = checkMd5Hash(filePath.toString());
-                if (!checkMd5Hash){
-                   VideoInfo info = new VideoInfo();
-                    info.setValid(false);
-                    info.setStatusMassage(VideoInfo.URL_INVALID);
-                    metaDataService.saveVideoInfo(videoId,info);
-                }
-            } catch (IOException | NoSuchAlgorithmException e) {
-                VideoInfo videoInfo = new VideoInfo();
-                 videoInfo.setValid(false);
-                 videoInfo.setStatusMassage(VideoInfo.URL_INVALID);
-                 metaDataService.saveVideoInfo(videoId,videoInfo);
+            int CONNECT_TIMEOUT = 10000;
+            int READ_TIMEOUT = 10000;
+            try {
+                log.info("file download started "+ new Date().getTime());
+                FileUtils.copyURLToFile(new URL(videoUrl), new File(filePath.normalize().toString()),
+                        CONNECT_TIMEOUT, READ_TIMEOUT);
+            } catch (IOException e) {
+                isException = true;
                 log.error(e.getMessage());
-
+            }finally {
+                if (isException){
+                    VideoInfo videoInfo = new VideoInfo();
+                    videoInfo.setValid(false);
+                    videoInfo.setStatusMassage(VideoInfo.URL_INVALID);
+                    metaDataService.saveVideoInfo(videoId,videoInfo);
+                    log.info("url is not valid or not downloadable ");
+                }
+                log.info("download successfully vName= "+videoId);
             }
-        } catch (MalformedURLException e) {
-            VideoInfo videoInfo = new VideoInfo();
-            videoInfo.setValid(false);
-            videoInfo.setStatusMassage(VideoInfo.URL_INVALID);
-            metaDataService.saveVideoInfo(videoId,videoInfo);
-            log.error(e.getMessage());
-        }
-
 
     }
     private boolean isFileExits(MultipartFile file, Resource resource) throws IOException {
@@ -125,18 +111,10 @@ public class DownloadVideoStorageService {
         }
     }
 
-    private boolean checkMd5Hash(String filename) throws IOException, NoSuchAlgorithmException {
 
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(Files.readAllBytes(fileStorageLocation.resolve(filename).normalize()));
-        byte[] digest = md.digest();
-        String myChecksum = DatatypeConverter.printHexBinary(digest);
-        System.out.println("myChecksum = " + myChecksum);
-        return myChecksum.equalsIgnoreCase(FILE_MD5_HASH);
-    }
-
-    public void extractMetadata(String videoId,String fileName){
+    public Optional<VideoInfo> extractMetadata(String videoId, String fileName){
         FFprobe ffprobe = null;
+        boolean isIoException= false;
         try {
             ffprobe = new FFprobe(FFPROBE_PATH);
             log.info("ffprobe path find and start read");
@@ -151,52 +129,97 @@ public class DownloadVideoStorageService {
                 log.info("extract meta data successfully");
             }
         } catch (IOException e) {
-            VideoInfo videoInfo = new VideoInfo();
-            videoInfo.setValid(false);
-            metaDataService.saveVideoInfo(videoId,videoInfo);
+            isIoException = true;
             e.printStackTrace();
+        }finally {
+            if (isIoException){
+                VideoInfo videoInfo = new VideoInfo();
+                videoInfo.setValid(false);
+                videoInfo.setStatusMassage(VideoInfo.URL_INVALID);
+                metaDataService.saveVideoInfo(videoId,videoInfo);
+                log.error("ioException file no readable");
+            }
+            log.info("meta data extract start ");
         }
         if (probeResult != null){
             FFmpegFormat format = probeResult.getFormat();
-            System.out.format("%nFile: '%s' ; Format: '%s' ; Duration: %.3fs",
-                    format.filename,
-                    format.format_name,
-                    format.duration
-            );
-
+//            System.out.format("%nFile: '%s' ; Format: '%s' ; Duration: %.3fs",
+//                    format.filename,
+//                    format.format_name,
+//                    format.duration
+//            );
+          VideoInfo videoInfo = new VideoInfo();
+            videoInfo.setVideoName(videoId);
+            videoInfo.setVideoType(format.format_name);
+            videoInfo.setVideoEncoding(format.format_long_name.replaceAll(".+/","").toLowerCase().trim());
+            videoInfo.setVideoDuration((long) format.duration);
+            videoInfo.setVideoSize(format.size);
             FFmpegStream stream = probeResult.getStreams().get(0);
-            System.out.format("%nCodec: '%s' ; Width: %dpx ; Height: %dpx",
-                    stream.codec_long_name,
-                    stream.width,
-                    stream.height
-            );
-        }
+              videoInfo.setWidth(stream.width);
+              videoInfo.setHeight(stream.height);
+              videoInfo.setVideoFps(stream.avg_frame_rate.intValue());
+            log.info("video info from ffmpeg = "+videoInfo.toString());
+            var info = checkValidation(videoInfo);
+            if (!info.isValid()) deleted(videoId);
+            return Optional.of(info);
+//            System.out.format("%nCodec: '%s' ; Width: %dpx ; Height: %dpx",
+//                    stream.codec_long_name,
+//                    stream.width,
+//                    stream.height
+//            );
 
+        }
+        return Optional.empty();
     }
     public VideoInfo checkValidation(VideoInfo info){
-        var first = Arrays.stream(VIDEO_TYPE.split(","))
-                .filter(s -> s.equalsIgnoreCase(info.getVideoEncoding()))
-                .findFirst();
-         if (first.isEmpty()) {
-             info.setValid(false);
-             info.setStatusMassage(VideoInfo.VIDEO_TYPE_NOT_VALID);
-             return info;
-         }
+
+//        var split = VIDEO_TYPE.split(",");
+         var split = "mov,mp4,mvi".split(",");
+        boolean isEncodingMatching = false;
+        for (String s : split) {
+            log.info("video type = " + s + " and encoding = " + info.getVideoEncoding());
+            var videoEncoding = info.getVideoEncoding();
+            if (s.compareToIgnoreCase(videoEncoding) == 0) {
+                log.info("video encoding match = " + info.getVideoEncoding());
+                isEncodingMatching = true;
+                break;
+            }
+        }
+        if (!isEncodingMatching){
+            info.setValid(false);
+            info.setStatusMassage(VideoInfo.VIDEO_TYPE_NOT_VALID);
+        }
+
 
         var height = info.getHeight();
         var width = info.getWidth();
         if((width*16)/(height*9) != 1){
           info.setValid(false);
           info.setStatusMassage(VideoInfo.ASPECT_RATIO_NOT_VALID);
+          log.info(VideoInfo.ASPECT_RATIO_NOT_VALID);
           return info;
         }
-        if (info.getVideoFps()< 24){
+        if (!(info.getVideoFps() >= 24) && !(info.getVideoFps()<=30) ){
             info.setValid(false);
             info.setStatusMassage(VideoInfo.VIDEO_FPS_NOT_GOOD);
+            log.info(VideoInfo.VIDEO_FPS_NOT_GOOD);
             return info;
         }
         info.setValid(true);
         return info;
+    }
+    public void deleted(String fileName){
+        try {
+            FileUtils.touch(new File(fileStorageLocation.resolve(fileName).normalize().toString()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileUtils.forceDelete(FileUtils.getFile(fileStorageLocation.resolve(fileName).normalize().toString()));
+            log.info("file deleted filename :"+fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
