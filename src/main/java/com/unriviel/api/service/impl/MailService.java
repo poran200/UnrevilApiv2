@@ -42,7 +42,7 @@ public class MailService {
     public void sendEmailVerification(String emailVerificationUrl, String to)
             throws IOException, TemplateException, MessagingException {
         Mail mail = new Mail();
-        mail.setSubject("Email Verification [Team CEP]");
+        mail.setSubject("Email Verification ");
         mail.setTo(to);
         mail.setFrom(mailFrom);
         mail.getModel().put("userName", to);
@@ -63,7 +63,7 @@ public class MailService {
         Long expirationInMinutes = TimeUnit.MILLISECONDS.toMinutes(expiration);
         String expirationInMinutesString = expirationInMinutes.toString();
         Mail mail = new Mail();
-        mail.setSubject("Password Reset Link [Team CEP]");
+        mail.setSubject("Password Reset Link");
         mail.setTo(to);
         mail.setFrom(mailFrom);
         mail.getModel().put("userName", to);
@@ -84,7 +84,7 @@ public class MailService {
     public void sendAccountChangeEmail(String action, String actionStatus, String to)
             throws IOException, TemplateException, MessagingException {
         Mail mail = new Mail();
-        mail.setSubject("Account Status Change [Team CEP]");
+        mail.setSubject("Account Status Change");
         mail.setTo(to);
         mail.setFrom(mailFrom);
         mail.getModel().put("userName", to);
@@ -126,6 +126,22 @@ public class MailService {
             e.printStackTrace();
         }
         mailSender.send(mimeMessage);
+
+    }
+    public void sendInvitationTest(String inviteLink, String sub,String email) throws IOException, TemplateException, MessagingException {
+        Mail mail = new Mail();
+        mail.setSubject(sub);
+        mail.setTo(email);
+        mail.setFrom(mailFrom);
+        mail.getModel().put("userEmail", email);
+//        mail.getModel().put("action", action);
+        mail.getModel().put("inviteLink", inviteLink);
+
+        templateConfiguration.setClassForTemplateLoading(getClass(), basePackagePath);
+        Template template = templateConfiguration.getTemplate("invitation.ftl");
+        String mailContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, mail.getModel());
+        mail.setContent(mailContent);
+        send(mail);
 
     }
 

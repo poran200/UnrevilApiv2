@@ -24,7 +24,7 @@ public class User extends DateAudit {
     @NotBlank(message = "User email cannot be null")
     private String email;
 
-    @Column(name = "USERNAME", unique = true)
+    @Column(name = "USERNAME", unique = false)
     @NullOrNotBlank(message = "Username can not be blank")
     private String username;
 
