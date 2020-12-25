@@ -50,7 +50,7 @@ public class VideoStorageService {
 
     public Response storeFile(MultipartFile file,String videoId, HttpServletRequest request,String userEmail) {
         // Normalize file name
-
+        boolean isException = false;
         String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         var replaceFileName = replaceFileName(file, videoId);
         Path filePath = this.fileStorageLocation.resolve(replaceFileName).normalize();
@@ -65,7 +65,7 @@ public class VideoStorageService {
             // Check if the file's name contains invalid characters
             if(originalFileName.contains("..")) {
 //                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
-                return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Sorry! Filename contains invalid path sequence "+originalFileName);
+                return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST, "Sorry! Filename contains invalid path sequence "+originalFileName);
             }
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()){
@@ -83,16 +83,26 @@ public class VideoStorageService {
             }
 
         }catch (MultipartException e){
-            var responseException = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+            isException = true;
+            var responseException = new VideoResponse(videoId, null, false, userEmail);
             metaDataService.saveVideoStatus(responseException);
             return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Could not store file " + file.getOriginalFilename() + ". Please try again!");
         }
         catch (IOException e) {
-            var responseException = new VideoResponse(videoId, path.path(finalReplaceName).toUriString(), false, userEmail);
+            isException = true;
+            var responseException = new VideoResponse(videoId, null, false, userEmail);
             metaDataService.saveVideoStatus(responseException);
             e.printStackTrace();
             return ResponseBuilder.getFailureResponse(HttpStatus.BAD_REQUEST,"Could not store file " + file.getOriginalFilename() + ". Please try again!");
+        }finally {
+            if (isException){
+                var responseException = new VideoResponse(videoId, null, false, userEmail);
+                metaDataService.saveVideoStatus(responseException);
+            }else {
+                log.info("video update");
+            }
         }
+
 
     }
   public Response reStore(MultipartFile file,String videoId,String userEmail,HttpServletRequest req){
@@ -142,7 +152,7 @@ public class VideoStorageService {
 
     private String replaceFileName(MultipartFile file ,String videoId) {
         String[] split = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
-        return split[0]= videoId+"."+split[1];
+        return videoId+"."+split[split.length-1];
     }
 
     public Resource loadFileAsResource(String fileName)  {
