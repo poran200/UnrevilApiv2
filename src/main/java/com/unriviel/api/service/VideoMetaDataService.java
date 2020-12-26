@@ -14,5 +14,5 @@ public interface VideoMetaDataService {
     Response update(String videoId, VideoMetadataRequestDto videoMetadataRequestDto);
     Response saveWithExternalUrl(VideoExternalUrlRequest request,String email);
     void  saveVideoInfo(String videoId, VideoInfo videoInfo);
-    void  videoMetaDataReUpdate(ReUploadMeataData meataData);
+    Response  videoMetaDataReUpdate(String videoId,ReUploadMeataData meataData);
 }

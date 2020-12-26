@@ -198,8 +198,8 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     }
 
     @Override
-    public void videoMetaDataReUpdate(ReUploadMeataData data) {
-        var videoMetaData = videoMetaDataRepository.findById(data.getVideoId());
+    public Response videoMetaDataReUpdate(String videoId, ReUploadMeataData data) {
+        var videoMetaData = videoMetaDataRepository.findById(videoId);
         if (videoMetaData.isPresent()){
             var metaData = videoMetaData.get();
             metaData.setVideoId(data.getVideoId());
@@ -209,9 +209,11 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
             metaData.setVideoSize(data.getVideoSize());
             metaData.setVideoFps(data.getVideoFps());
             metaData.setVideoResolution(data.getVideoResolution());
-            videoMetaDataRepository.save(metaData);
+            var update = videoMetaDataRepository.save(metaData);
             log.info("video meta data update [video id]"+data.getVideoId());
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"update meta data",modelMapper.map(update,VideoMetadataRequestDto.class));
         }
+        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"video not found [id]"+videoId);
 
     }
 }

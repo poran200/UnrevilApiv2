@@ -62,6 +62,7 @@ public final class  UrlConstrains {
 
         public static  final String CREATE ="/";
         public static  final String UPDATE ="/{videoId}";
+        public static  final String RE_UPDATE ="/reUpload/{videoId}";
         public static  final String GET_BY_ID ="/{id}";
         public static  final String GET_BY_ID_REVIEW ="/review/{id}";
         public static  final String GET_BY_EMAIL ="/video/{email}";

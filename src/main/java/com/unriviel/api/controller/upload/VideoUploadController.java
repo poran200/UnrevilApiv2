@@ -1,5 +1,7 @@
 package com.unriviel.api.controller.upload;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unriviel.api.annotation.APiController;
 import com.unriviel.api.dto.ReUploadMeataData;
 import com.unriviel.api.service.VideoMetaDataService;
@@ -60,24 +62,18 @@ public class VideoUploadController   {
         }
     }
     @Async
-    @PostMapping(UrlConstrains.VideoUpload.REUPLOAD)
+    @PostMapping(value = UrlConstrains.VideoUpload.REUPLOAD)
     public CompletableFuture<ResponseEntity<Object>> reUpload(@RequestBody(required = true)MultipartFile file,
-                                                                @RequestBody(required = true) ReUploadMeataData mataData,
-                                                                @PathVariable(required = true) String videoId,
-                                                                @PathVariable(required = true) String userEmail,
-                                                                HttpServletRequest request) throws RuntimeException {
-        if (videoId == null || userEmail == null || file == null || mataData ==null){
-          return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("user email and file videoId and meta data is require"));
-        }else if (videoId!=null){
-           if (metaDataService.findByVideoId(videoId).getStatusCode()== 200){
-               return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("user video meta data no found"));
-           }
-        }else
-            mataData.setVideoId(videoId);
-            metaDataService.videoMetaDataReUpdate(mataData);
-            var response = videoStorageService.reStore(file,videoId,userEmail,request);
+                                                              @PathVariable(required = true) String videoId,
+                                                              @PathVariable(required = true) String userEmail,
+                                                              HttpServletRequest request) throws RuntimeException {
+        if (videoId == null || userEmail == null || file == null ) {
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("user email and file videoId and meta data is require"));
+        } else {
+            var response = videoStorageService.reStore(file, videoId, userEmail, request);
             return CompletableFuture.completedFuture(ResponseEntity.status((int) response.getStatusCode()).body(response));
 
+        }
     }
     @GetMapping("/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) throws IOException {
@@ -125,6 +121,15 @@ public class VideoUploadController   {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(new ByteArrayResource(bytes));
+    }
+    private ReUploadMeataData getJsonTometaData(String data){
+         ObjectMapper on = new ObjectMapper();
+        try {
+          return  on.readValue(data, ReUploadMeataData.class);
+        } catch (JsonProcessingException e) {
+            log.info("json pars error "+ data);
+        }
+        return null;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.unriviel.api.controller.upload;
 
 import com.unriviel.api.annotation.APiController;
+import com.unriviel.api.dto.ReUploadMeataData;
 import com.unriviel.api.dto.VideoExternalUrlRequest;
 import com.unriviel.api.dto.VideoMetadataRequestDto;
 import com.unriviel.api.event.OnVideoDawonLoadEvent;
@@ -48,6 +49,13 @@ public class VideoMetadataController {
                                          @PathVariable(required = true) String videoId
                                          ){
         var response = videoMetaDataService.update(videoId,dto);
+        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+    }
+    @PutMapping(UrlConstrains.VideoMetaDataManagement.RE_UPDATE)
+    public ResponseEntity<Object> updateVideoMetaData(@RequestBody(required = true) ReUploadMeataData dto,
+                                         @PathVariable(required = true) String videoId
+    ){
+        var response = videoMetaDataService.videoMetaDataReUpdate(videoId,dto);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
     @GetMapping(UrlConstrains.VideoMetaDataManagement.GET_BY_EMAIL)
