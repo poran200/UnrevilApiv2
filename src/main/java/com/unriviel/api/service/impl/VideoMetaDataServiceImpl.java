@@ -196,4 +196,22 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
              videoMetaDataRepository.save(data);
          }
     }
+
+    @Override
+    public void videoMetaDataReUpdate(ReUploadMeataData data) {
+        var videoMetaData = videoMetaDataRepository.findById(data.getVideoId());
+        if (videoMetaData.isPresent()){
+            var metaData = videoMetaData.get();
+            metaData.setVideoId(data.getVideoId());
+            metaData.setVideoName(data.getVideoName());
+            metaData.setVideoEncoding(data.getVideoEncoding());
+            metaData.setVideoDuration(data.getVideoDuration());
+            metaData.setVideoSize(data.getVideoSize());
+            metaData.setVideoFps(data.getVideoFps());
+            metaData.setVideoResolution(data.getVideoResolution());
+            videoMetaDataRepository.save(metaData);
+            log.info("video meta data update [video id]"+data.getVideoId());
+        }
+
+    }
 }

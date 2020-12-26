@@ -1,6 +1,7 @@
 package com.unriviel.api.controller.upload;
 
 import com.unriviel.api.annotation.APiController;
+import com.unriviel.api.dto.ReUploadMeataData;
 import com.unriviel.api.service.VideoMetaDataService;
 import com.unriviel.api.service.impl.DownloadVideoStorageService;
 import com.unriviel.api.service.impl.UserService;
@@ -61,12 +62,19 @@ public class VideoUploadController   {
     @Async
     @PostMapping(UrlConstrains.VideoUpload.REUPLOAD)
     public CompletableFuture<ResponseEntity<Object>> reUpload(@RequestBody(required = true)MultipartFile file,
-                                                              @PathVariable(required = true) String videoId,
-                                                              @PathVariable(required = true) String userEmail,
-                                                              HttpServletRequest request) throws RuntimeException {
-        if (videoId == null || userEmail == null || file.isEmpty()){
-            ResponseEntity.badRequest().body("user email and videoId require");
-        }
+                                                                @RequestBody(required = true) ReUploadMeataData mataData,
+                                                                @PathVariable(required = true) String videoId,
+                                                                @PathVariable(required = true) String userEmail,
+                                                                HttpServletRequest request) throws RuntimeException {
+        if (videoId == null || userEmail == null || file == null || mataData ==null){
+          return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("user email and file videoId and meta data is require"));
+        }else if (videoId!=null){
+           if (metaDataService.findByVideoId(videoId).getStatusCode()== 200){
+               return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("user video meta data no found"));
+           }
+        }else
+            mataData.setVideoId(videoId);
+            metaDataService.videoMetaDataReUpdate(mataData);
             var response = videoStorageService.reStore(file,videoId,userEmail,request);
             return CompletableFuture.completedFuture(ResponseEntity.status((int) response.getStatusCode()).body(response));
 
