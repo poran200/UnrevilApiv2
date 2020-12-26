@@ -80,10 +80,8 @@ public class VideoMetaDataServiceImpl implements VideoMetaDataService {
     public Response finByUserEmail(String email, Pageable pageable) {
         var page = videoMetaDataRepository.findAllByUploaderEmailOrderByCreatedAtDesc(email, pageable)
                 .map(metaData -> modelMapper.map(metaData,VideoMetadataRequestDto.class));
-        if (page.hasContent()){
             return ResponseBuilder.getSuccessResponsePage(HttpStatus.OK,"Videos",page);
-        }
-        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"No contend found");
+
     }
 
     @Override
