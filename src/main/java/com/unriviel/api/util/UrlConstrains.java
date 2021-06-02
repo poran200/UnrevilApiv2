@@ -84,5 +84,6 @@ public final class  UrlConstrains {
         public static final String VIDEOS = "/videos/{userEmail}";
         public static final String VIDEOSPOST = "/videos";
         public static final String ON_REVIEW = "/{videoId}";
+        public static final String VIDOMETADATA = "/metadata/{videoId}";
     }
 }

@@ -90,5 +90,9 @@ public class ReviewController {
         return PageRequest.of(pageNumber, pageSize,sort);
     }
 
-
+    @GetMapping(UrlConstrains.ReviewManagement.VIDOMETADATA)
+    public ResponseEntity<Object> findById( @Valid @PathVariable(required = true) String videoId){
+        var response = reviewService.getMeataDataById(videoId);
+        return ResponseEntity.status((int) response.getStatusCode()).body(response);
+    }
 }

@@ -11,4 +11,5 @@ public interface ReviewService {
     Response findAllByReviewerEmail(String email, Pageable pageable );
     Response finAllByUploaderEmail(String email,Pageable pageable);
     Response findAllByScorchKey(String key, Pageable pageable);
+    Response getMeataDataById(String videoId);
 }

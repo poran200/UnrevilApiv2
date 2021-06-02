@@ -10,6 +10,8 @@ import com.unriviel.api.model.metadata.review.ReviewQsAns;
 import com.unriviel.api.repository.ReviewQsAnsRepository;
 import com.unriviel.api.repository.VideoMetaDataRepository;
 import com.unriviel.api.service.ReviewService;
+import com.unriviel.api.service.VideoMetaDataService;
+import com.unriviel.api.util.ResponseBuilder;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,11 +26,13 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewQsAnsRepository ansRepository;
     private final UserService userService;
     private final ModelMapper modelMapper;
-    public ReviewServiceImpl(VideoMetaDataRepository metaDataRepository, ReviewQsAnsRepository ansRepository, UserService userService, ModelMapper modelMapper) {
+    private final VideoMetaDataService metaDataService;
+    public ReviewServiceImpl(VideoMetaDataRepository metaDataRepository, ReviewQsAnsRepository ansRepository, UserService userService, ModelMapper modelMapper, VideoMetaDataService metaDataService) {
         this.metaDataRepository = metaDataRepository;
         this.ansRepository = ansRepository;
         this.userService = userService;
         this.modelMapper = modelMapper;
+        this.metaDataService = metaDataService;
     }
 
     @Override
@@ -92,6 +96,15 @@ public class ReviewServiceImpl implements ReviewService {
          throw new   UnsupportedOperationException();
     }
 
+    @Override
+    public Response getMeataDataById(String videoId) {
+        var meatadata = metaDataRepository.findById(videoId);
+        if (meatadata.isPresent()){
+            var dto = modelMapper.map(meatadata, VideoMetadataResponseDto.class);
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"meta data found",dto);
+        }
+        return ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,"video meta data not found - "+videoId);
+    }
 
 
     private VideoMetaData setupReviewData(VideoMetaData videoMetaData, ReviewQsAns review) {
